@@ -776,8 +776,8 @@
       <!-- Payment/Refund -->
       <fieldset id="groupPaymentRefund" class="two-columns" data-group-for="paymentDue, paymentProcessed, refund" data-group-value="Payment/Refund Selectors" hidden>
       <label><input type="checkbox" id="paymentDue" name="paymentDue" value="Payment due on account" data-show-note="notePaymentDue" onchange="handleInputChange(event)">Payment due on account</label>
-      <label><input type="checkbox" id="paymentProcessed" name="paymentProcessed" value="Payment processed" data-show-note="notePaymentProcessed" onchange="handleInputChange(event)">Payment Processed</label>
-      <label><input type="checkbox" id="refund" name="refund" value="Refund processed" data-show-note="noteRefundProcessed" onchange="handleInputChange(event)">Refund processed</label>
+      <label><input type="checkbox" id="paymentProcessed" name="paymentProcessed" value="Payment processed" data-show-groups="whichAccount" data-require-groups="whichAccount"data-show-note="notePaymentProcessed" onchange="handleInputChange(event)">Payment Processed</label>
+      <label><input type="checkbox" id="refund" name="refund" value="Refund processed" data-show-groups="refundIssued" data-require-groups="refundIssued" data-show-note="noteRefundProcessed" onchange="handleInputChange(event)">Refund processed</label>
       </fieldset>
       <!-- Payment Information -->
       <fieldset id="whichAccount" data-group-for="whatKindAccount" data-group-value="Payment Selection" hidden>
@@ -799,7 +799,7 @@
       <hr class="rounded">
       <div class="input-row" >
       <div class="text-input-container">
-      <input type="text" id="memberAmount" name="memberAmount" data-type="currency" inputmode="numeric" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">
+      <input type="text" id="memberAmount" name="memberAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">
       <label for="memberAmount" class="text-input-label">Amount</label>
       </div>
       <div class="text-input-container">
@@ -818,7 +818,7 @@
       <hr class="rounded">
       <div class="input-row" >
       <div class="text-input-container">
-      <input type="text" id="memberRefundAmount" name="memberRefundAmount" data-type="currency" inputmode="numeric" data-show-note="noteRefund" onchange="handleInputChange(event)">
+      <input type="text" id="memberRefundAmount" name="memberRefundAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteRefund" onchange="handleInputChange(event)">
       <label for="memberRefundAmount" class="text-input-label">Amount</label>
       </div>
       <div class="text-input-container">
@@ -850,7 +850,7 @@
       <hr class="rounded">
       <div class="input-row">
       <div class="text-input-container">
-      <input type="text" id="memberGiftedAmount" name="memberGiftedAmount" data-type="currency" inputmode="numeric" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">
+      <input type="text" id="memberGiftedAmount" name="memberGiftedAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">
       <label for="memberGiftedAmount" class="text-input-label">Amount</label>
       </div>
       <div class="text-input-container">
@@ -1059,7 +1059,7 @@
       <label for="orderNum" class="text-input-label">Order#</label>
       </div>
       <div class="text-input-container">
-      <input type="text" id="orderAmount" name="orderAmount" data-type="currency" inputmode="numeric" data-show-note="noteStoreOrder" onchange="handleInputChange(event)">
+      <input type="text" id="orderAmount" name="orderAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteStoreOrder" onchange="handleInputChange(event)">
       <label for="orderAmount" class="text-input-label">Amount</label>
       </div>
       </div>
@@ -1122,7 +1122,7 @@
       <hr class="rounded">
       <div class="input-row" >  
       <div class="text-input-container">
-      <input type="text" id="newMemberAmount" name="newMemberAmount" data-type="currency" inputmode="numeric" data-show-note="noteNewMembershipPayment" onchange="handleInputChange(event)">
+      <input type="text" id="newMemberAmount" name="newMemberAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteNewMembershipPayment" onchange="handleInputChange(event)">
       <label for="newMemberAmount" class="text-input-label">Amount</label>
       </div>
       <div class="text-input-container" >
@@ -1170,7 +1170,7 @@
       <hr class="rounded">
       <div class="input-row" >
       <div class="text-input-container">
-      <input type="text" id="newSpouseMemberAmount" name="newSpouseMemberAmount" data-type="currency" inputmode="numeric" data-show-note="noteNewSpousePayment" onchange="handleInputChange(event)">
+      <input type="text" id="newSpouseMemberAmount" name="newSpouseMemberAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteNewSpousePayment" onchange="handleInputChange(event)">
       <label for="newSpouseMemberAmount" class="text-input-label">Amount</label>
       </div>
       <div class="text-input-container">
@@ -1239,7 +1239,7 @@
       <hr class="rounded">
       <div class="input-row">
       <div class="text-input-container">
-      <input type="text" id="newGiftedMemberAmount" name="newGiftedMemberAmount" data-type="currency" inputmode="numeric" data-show-note="noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">
+      <input type="text" id="newGiftedMemberAmount" name="newGiftedMemberAmount" data-type="currency" inputmode="numeric" pattern="^[0-9]+\.[0-9]{2}$" placeholder="0.00" data-show-note="noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">
       <label for="newGiftedMemberAmount" class="text-input-label">Amount</label>
       </div>
       <div class="text-input-container">
@@ -1486,7 +1486,7 @@
         <p id="noteMemberUpgrade" hidden data-note-template="Upgrade from {startLevelMemberUpgrade} {memberStartUpRate} - {memberStartUpPaymentPlan} {memberUpgradeDiscounted} to {finishLevelMemberUpgrade} {memberUpgradeRatePlan} - {memberFinishUpPaymentPlan} {memberFinishUpgradeDiscounted} Effective {memberUpgradeEffective}"></p>
         <p id="noteSpouseUpgrade" hidden data-note-template="Upgrade Spouse from {startLevelSpouseUpgrade} {spouseStartUpRate} - {spouseStartUpPaymentPlan} to {finishLevelSpouseUpgrade} {spouseFinishUpRate} - {spouseUpgradePaymentPlan} Effective {spouseUpgradeEffective}"></p>
         <p id="notePaymentDue" hidden data-note-template="{paymentDue}"></p>
-        <p id="noteMemberPayment" hidden data-note-template="Processed ${memberAmount} to {memberlast4} {achCard}"></p>
+        <p id="noteMemberPayment" hidden data-note-template="Processed ${memberAmount} to {memberLast4} {achCard}"></p>
         <p id="noteMemberOneTimePayment" hidden data-note-template="{memberOneTimePayment}"></p>
         <p id="noteGiftedPayment" hidden data-note-template="Processed ${memberGiftedAmount} to {memberGiftedLast4} {achCardGifted} for Gifted account {giftedFullName} - {giftedMemberID}"></p>
         <p id="noteGiftedOneTimePayment" hidden data-note-template="{memberOneTimeGiftedPayment}"></p>
@@ -1950,23 +1950,42 @@
             if (document.getElementById(noteId)) document.getElementById(noteId).removeAttribute('hidden');
             // Populate template placeholders inline without storing DOM-derived values in local variables.
             if (document.getElementById(noteId) && document.getElementById(noteId).dataset && document.getElementById(noteId).dataset.noteTemplate) {
-              document.getElementById(noteId).textContent = document.getElementById(noteId).dataset.noteTemplate.replace(/\{([^}]+)\}/g, function(_, token) {
-                // support {list:inputName} to join checked values for checkbox/radio groups
-                if (String(token).indexOf('list:') === 0) {
-                  var group = String(token).slice(5);
+              var template = document.getElementById(noteId).dataset.noteTemplate;
+              // support ${token} style as well as {token}
+              function resolveToken(token) {
+                if (!token) return '';
+                token = String(token).trim();
+                if (token.indexOf('list:') === 0) {
+                  var group = token.slice(5);
                   var parts = [];
                   var nodes = document.getElementsByName(group);
                   for (var i = 0; i < nodes.length; i++) {
                     var n = nodes[i];
-                    if ((n.type === 'checkbox' || n.type === 'radio') && n.checked === true) {
-                      parts.push(n.value);
-                    }
+                    if ((n.type === 'checkbox' || n.type === 'radio') && n.checked === true) parts.push(n.value);
                   }
                   return parts.join(', ');
                 }
-                // fallback: single-input placeholder referring to an element id
-                return (document.getElementById(token) && document.getElementById(token).value) || '';
-              });
+                // Try id first
+                var el = document.getElementById(token);
+                if (el) return String(el.value || '').trim();
+                // Fallback: try name (useful for radio groups)
+                var els = document.getElementsByName(token);
+                if (els && els.length > 0) {
+                  // radio/checkbox group
+                  if (els[0].type === 'radio' || els[0].type === 'checkbox') {
+                    var parts = [];
+                    for (var j = 0; j < els.length; j++) { if (els[j].checked) parts.push(els[j].value); }
+                    return parts.join(', ');
+                  }
+                  // otherwise return first element's value
+                  return String(els[0].value || '').trim();
+                }
+                return '';
+              }
+              // replace ${token} and {token}
+              var replaced = template.replace(/\$\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
+              replaced = replaced.replace(/\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
+              document.getElementById(noteId).textContent = replaced;
             }
           } else {
             if (document.getElementById(noteId)) document.getElementById(noteId).setAttribute('hidden', '');
