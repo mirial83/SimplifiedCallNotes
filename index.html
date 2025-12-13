@@ -1,0 +1,2028 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Notes and Dispositions</title>
+    <!-- Stylesheet reference -->
+    <style>
+      body, p, label, input, textarea, select, button, div, span {
+        font-family: Arial, sans-serif;
+        font-size: 16pt;
+        text-align: center;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
+
+      h1 {
+        color: white;
+      }
+
+      body {
+        background-color: black; /* Black background for areas outside the form */
+        margin: 0;
+        padding: 0;
+      }
+      fieldset {
+        border: 2px solid #000;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 20px;
+        background-color: #f9f9f9; /* Light background for fieldsets */
+      }
+      .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        justify-items: start;
+        align-items: start;
+      }
+      .radio-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(50px, 1fr));
+        align-items: start;
+        justify-items: start;
+      }
+      .text-input-container {
+        display: grid;
+        text-align: center;
+        vertical-align: top;
+        margin: 6px 8px;
+      }
+      .text-input-container input,
+      .text-input-container select,
+      .text-input-container textarea {
+        display: block;
+        margin: 0 auto;
+      }
+      .text-input-label {
+        display: block;
+        text-align: center;
+        color: #666;
+        font-size: 14pt;
+        margin-top: 6px;
+        transition: all 0.12s ease;
+      }
+      /* Ensure hidden attribute actually hides elements (protect against overrides) */
+      [hidden] {
+        display: none !important;
+      }
+
+      /* Remove extra spacing between static note lines in the disposition area */
+      #dispositionNote p {
+        margin: 0;
+        padding: 0;
+        text-align: left;
+      }
+      .input-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+      hr.rounded {
+        border-top: 3px solid black
+        ;
+        border-radius: 5px;
+      }
+      button {
+        padding: 10px 20px;
+        font-size: 16pt;
+        border: none;
+        border-radius: 5px;
+        background-color: #000000;
+        color: white;
+        cursor: pointer;
+      }
+      input[type="checkbox"], input[type="radio"] {
+        transform: scale(1.5);
+        margin-right: 8px;
+      }
+      input[type="date"], select {
+        font-size: 16pt;
+        padding: 6px;
+        border: 1px solid black;
+        border-radius: 4px;
+        width: 250px;
+      }
+      textarea, input[type="text"] {
+        font-size: 16pt;
+        padding: 6px;
+        border: 1px solid black;
+        border-radius: 4px;
+        width: calc(100% - 20px);
+        box-sizing: border-box;
+        max-width: none;
+      }
+      .required-indicator {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 12pt;
+        text-align: left;
+        margin: 0 0 6px 0;
+        grid-column: 1 / -1; /* span grid columns when inside grid containers */
+      }
+      /* Fieldset-level required indicator: add `data-required` (boolean) or
+         `data-required-text="..."` on the <fieldset> to show a top-line
+         indicator without affecting layout. Use boolean for default "*required". */
+      fieldset[data-required], fieldset[data-required-text] {
+        position: relative;
+        /* add top padding so the absolutely-positioned indicator doesn't overlap inputs */
+        padding-top: 40px;
+      }
+      fieldset[data-required-text]::before {
+        content: attr(data-required-text);
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        right: 12px;
+        box-sizing: border-box;
+        font-size: 12pt;
+        text-align: left;
+        margin: 0;
+        pointer-events: none;
+        color: red;
+        font-style: italic;
+      }
+      fieldset[data-required]:not([data-required-text])::before {
+        content: "*required";
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        right: 12px;
+        box-sizing: border-box;
+        font-size: 12pt;
+        text-align: left;
+        margin: 0;
+        pointer-events: none;
+        color: red;
+        font-style: italic;
+      }
+      /* Disposition summary shown when required fields are incomplete */
+      .required-summary {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        color: red;
+        font-size: 12pt;
+        text-align: left;
+        margin: 6px 0;
+      }
+      .disposition-details {
+        margin-top: 8px;
+        text-align: left;
+      }
+      .disposition-details .disposition-line {
+        margin: 4px 0;
+        font-size: 12pt;
+        color: #111;
+      }
+      .disposition-details .disposition-header {
+        margin: 4px 0 8px 0;
+        font-size: 13pt;
+        font-weight: 600;
+        color: #000;
+      }
+      .optional-indicator {
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
+        color: #666;
+        font-size: 12pt;
+        text-align: left;
+        margin: 6px 0;
+        font-style: italic;
+      }
+      fieldset[data-optional]::before {
+        content: attr(data-optional-text);
+        position: absolute;
+        top: 10px;
+        left: 12px;
+        right: 12px;
+        box-sizing: border-box;
+        font-size: 12pt;
+        text-align: left;
+        margin: 0;
+        pointer-events: none;
+        color: #666;
+        font-style: italic;
+      }
+      /* Bookmark bar styling per user request */
+      #bookmarkBar.bookmark-bar {
+        background: white;
+        color: black;
+        padding: 6px 10px;
+        border-bottom: 1px solid #ddd;
+        overflow-x: hidden; /* prevent horizontal scrollbar */
+        position: sticky; /* stay at top while scrolling, but remain in flow */
+        top: 0;
+        z-index: 1000;
+      }
+      #bookmarkBar .bookmark-container {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap; /* allow wrapping onto multiple lines */
+        white-space: normal;
+        font-size: 14pt;
+      }
+      #bookmarkBar .bookmark-link {
+        color: black;
+        text-decoration: none;
+        padding: 2px 6px;
+        display: inline-block;
+      }
+      /* Separator between visible bookmarks: JS adds/removes the 'sep' class */
+      #bookmarkBar .bookmark-link.sep::after {
+        content: ' |';
+        color: black;
+        margin-left: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Dynamic Bookmark Bar -->
+    <div id="bookmarkBar" class="bookmark-bar" hidden>
+      <div class="bookmark-container">
+        <a href="#" data-target="groupIsMember" class="bookmark-link">Contact Info</a>
+        <a href="#" data-target="groupReasonCalled" class="bookmark-link">Reason</a>
+        <a href="#" data-target="outbound" class="bookmark-link">Outbound</a>
+        <a href="#" data-target="groupCancelationReason" class="bookmark-link">Cancelation</a>
+        <a href="#" data-target="groupCompetitor" class="bookmark-link">Competitor</a>
+        <a href="#" data-target="groupSave" class="bookmark-link">Saved?</a>
+        <a href="#" data-target="groupSaveReason" class="bookmark-link">How saved</a>
+        <a href="#" data-target="accountMaintenance" class="bookmark-link">Account Maintenance</a>
+        <a href="#" data-target="memberSpousePaymentPlanChange" class="bookmark-link">Payment Plan Change</a>
+        <a href="#" data-target="memberSpouseUpgrade" class="bookmark-link">Upgrade</a>
+        <a href="#" data-target="memberSpouseDowngrade" class="bookmark-link">Downgrade</a>
+        <a href="#" data-target="memberSpouseName" class="bookmark-link">Name</a>
+        <a href="#" data-target="memberSpouseEmail" class="bookmark-link">Email Update</a>
+        <a href="#" data-target="memberSpousePhone" class="bookmark-link">Phone</a>
+        <a href="#" data-target="memberSpouseAttorney" class="bookmark-link">Attorney</a>
+        <a href="#" data-target="memberSpouseEmergency" class="bookmark-link">Emergency Contact</a>
+        <a href="#" data-target="memberSpouseInfo" class="bookmark-link">Spouse Info</a>
+        <a href="#" data-target="background" class="bookmark-link">Background</a>
+        <a href="#" data-target="groupPaymentRefund" class="bookmark-link">Payment/Refunds</a>
+        <a href="#" data-target="whichAccount" class="bookmark-link">Payment</a>
+        <a href="#" data-target="refundIssued" class="bookmark-link">Refund</a>
+        <a href="#" data-target="paymentArrangement" class="bookmark-link">Arrangements</a>
+        <a href="#" data-target="promos" class="bookmark-link">Promo</a>
+        <a href="#" data-target="couponCodes" class="bookmark-link">Coupons</a>
+        <a href="#" data-target="membershipInformation" class="bookmark-link">Benefits</a>
+        <a href="#" data-target="reciprocityInformation" class="bookmark-link">Reciprocity</a>
+        <a href="#" data-target="storeIssue" class="bookmark-link">Store Issue</a>
+        <a href="#" data-target="orderInfo" class="bookmark-link">Order Info</a>
+        <a href="#" data-target="trainingInfo" class="bookmark-link">Class</a>
+        <a href="#" data-target="instructor" class="bookmark-link">Instructor</a>
+        <a href="#" data-target="transfers" class="bookmark-link">Transfers</a>
+        <a href="#" data-target="purchase" class="bookmark-link">Purchases</a>
+        <a href="#" data-target="newMembership" class="bookmark-link">New Membership</a>
+        <a href="#" data-target="newSpouseMembershipInfo" class="bookmark-link">New Spouse</a>
+        <a href="#" data-target="newGiftedMembershipInfo" class="bookmark-link">New Gifted</a>
+        <a href="#" data-target="sentSubmittedSection" class="bookmark-link">Checklist</a>
+        <a href="#" data-target="wowItems" class="bookmark-link">WOWs</a>
+        <a href="#" data-target="ffs" class="bookmark-link">FFs</a>
+        <a href="#" data-target="emails" class="bookmark-link">Emails Sent</a>
+        <a href="#" data-target="FDT1" class="bookmark-link">FDT 1</a>
+        <a href="#" data-target="FDT2" class="bookmark-link">FDT 2</a>
+        <a href="#" data-target="spouseAsk" class="bookmark-link">Spouse/RAF</a>
+        <a href="#" data-target="notesText" class="bookmark-link">Notes</a>
+      </div>
+    </div>
+    <form id="callNotes">
+      <div class="header-section" style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+        <h1 style="margin: 0;">Call Note Generation</h1>
+      </div>
+      <!-- Member Info -->
+      <fieldset id="groupIsMember" class="radio-group" data-group-for="isMember" data-group-value="Member/Lead Selection" data-required>
+        <label><input type="radio" id="isMemberY" name="isMember" value="Member" data-show-groups="groupMemberInfo, groupPaymentRefund, groupReasonCalled, sentSubmittedSection, spouseAsk, raf, notesText, einsteinText" data-require-groups="groupMemberInfo, groupReasonCalled, spouseAsk, raf" data-show-note="noteMemberInfo" onchange="handleInputChange(event)">Member</label>
+        <label><input type="radio" id="isMemberN" name="isMember" value="Lead" data-show-groups="groupReasonCalled, sentSubmittedSection, raf, notesText, einsteinText" data-require-groups="groupReasonCalled, raf" data-hide-groups="groupMemberInfo, groupPaymentRefund, spouseAsk" data-unrequire-groups="groupMemberInfo, spouseAsk" data-show-note="noteLead" onchange="handleInputChange(event)">Lead</label>
+      </fieldset>
+      <fieldset id="groupMemberInfo" class="input-row" data-group-for="fullName, memberID" data-group-value="Member Information" hidden>
+        <div class="text-input-container">
+          <input type="text" id="fullName" name="fullName" data-show-note="noteMemberInfo">
+          <label for="fullName" class="text-input-label">Full Name</label>
+        </div>
+        <div class="text-input-container">
+          <input type="text" id="memberID" name="memberID" data-show-note="noteMemberInfo">
+          <label for="memberID" class="text-input-label">ID#</label>
+        </div>
+      </fieldset>
+      <!-- Call Reasons -->
+      <fieldset id="groupReasonCalled" data-group-for="reasonCalled" data-group-value="Reason Called" hidden>
+        <h3>What is the reason for the contact?</h3>
+        <div class="two-columns">
+          <label><input type="checkbox" id="accountMaintenanceSelection" name="reasonCalled" value="Account Maintenance" data-show-groups="accountMaintenance" data-require-groups="accountMaintenance" onchange="handleInputChange(event)">Account Maintenance</label>
+          <label><input type="checkbox" id="postCancelationInquiry" name="reasonCalled" value="Post Cancelation Inquiry" data-hide-groups="spouseAsk, raf" data-unrequire-groups="spouseAsk, raf" data-show-note="notePostCanInquiry" onchange="handleInputChange(event)">Post Cancelation Inquiry</label>
+          <label><input type="checkbox" id="cancelation" name="reasonCalled" value="Cancelation" data-show-groups="groupCancelationReason, groupSave, membershipInformation" data-require-groups="groupCancelationReason, groupSave" data-show-note="noteCancelation" onchange="handleInputChange(event)">Cancelation</label>
+          <label><input type="checkbox" id="canRequest" name="reasonCalled" value="CAN Request" data-hide-groups="sentSubmittedSection, raf, spouseAsk, groupPaymentRefund" data-unrequire-groups="sentSubmittedSection, raf, spouseAsk, groupPaymentRefund" data-show-note="noteCanRequest" onchange="handleInputChange(event)">CAN Request</label>
+          <label><input type="checkbox" id="complaint" name="reasonCalled" value="Complaint" data-hide-groups="raf, spouseAsk" data-unrequire-groups="raf, spouseAsk" data-show-note="noteComplaint" onchange="handleInputChange(event)">Complaint</label>
+          <label><input type="checkbox" id="GADentry" name="reasonCalled" value="GAD" data-unrequire-groups="spouseAsk" data-show-note="noteGADentry" onchange="handleInputChange(event)">GAD Entry</label>
+          <label><input type="checkbox" id="GADquestion" name="reasonCalled" value="GAD Question" data-show-note="noteGADquestion" onchange="handleInputChange(event)">GAD Question</label>
+          <label><input type="checkbox" id="groupMembership" name="reasonCalled" value="Group Membership" data-show-groups="groupContactInformation" data-require-groups="groupContactInformation" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Group Membership</label>
+          <label><input type="checkbox" id="reciprocity" name="reasonCalled" value="Gun Laws and Reciprocity" data-show-groups="reciprocityInfo" data-require-groups="reciprocityInfo" data-show-note="noteReciprocityQuestions" onchange="handleInputChange(event)">Gun Laws and Reciprocity</label>
+          <label><input type="checkbox" id="training" name="reasonCalled" value="In-person Training" data-show-groups="trainingInfo" data-require-groups="trainingInfo" data-show-note="noteTrainingClass" onchange="handleInputChange(event)">In-person Training</label>
+          <label><input type="checkbox" id="instructorInfo" name="reasonCalled" value="Instructor Questions" data-show-groups="instructor" data-require-groups="instructor" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Instructor Questions</label>
+          <label><input type="checkbox" id="info" name="reasonCalled" value="Membership Information" data-show-groups="membershipInformation" data-require-groups="membershipInformation" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Membership Information</label>
+          <label><input type="checkbox" id="outboundCall" name="reasonCalled" value="Outbound Call" data-show-groups="outbound" data-hide-groups="groupPaymentRefund, spouseAsk, raf" data-unrequire-groups="spouseAsk, raf" data-require-groups="outbound" onchange="handleInputChange(event)">Outbound Call</label>
+          <label><input type="checkbox" id="purchaseMade" name="reasonCalled" value="Purchase" data-show-groups="purchase" data-require-groups="purchase" data-show-note="notePurchases" onchange="handleInputChange(event)">Purchase</label>
+          <label><input type="checkbox" id="stateRegulated" name="reasonCalled" value="State Regulated" data-show-groups="stateRegulatedState" data-require-groups="stateRegulatedState" data-hide-groups="spouseAsk, raf" data-unrequire-groups="spouseAsk, raf" data-show-note="noteStateRegulated" onchange="handleInputChange(event)">State Regulated</label>
+          <label><input type="checkbox" id="store" name="reasonCalled" value="Store Questions" data-show-groups="storeIssue" data-require-groups="storeIssue" data-show-note="noteStoreQuestions" onchange="handleInputChange(event)">Store Questions</label>
+          <label><input type="checkbox" id="suspicious" name="reasonCalled" value="Suspicious" data-unrequire-groups="spouseAsk, raf" data-show-note="noteSuspicious" onchange="handleInputChange(event)">Suspicious</label>
+          <label><input type="checkbox" id="technicalIssues" name="reasonCalled" value="Technical Issues" data-hide-groups="spouseAsk, raf" data-unrequire-groups="spouseAsk, raf" data-show-note="noteTechnicalIssues" onchange="handleInputChange(event)">Technical Issues</label>
+          <label><input type="checkbox" id="transfer" name="reasonCalled" value="Transfer" data-show-groups="transfers" data-require-groups="transfers" data-unrequire-groups="spouseAsk, raf" data-show-note="noteTransfer" onchange="handleInputChange(event)">Transfer</label>
+          <label><input type="checkbox" id="other" name="reasonCalled" value="Other">Other</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="text" id="otherReasonCalled" name="otherReasonCalled" data-show-note="noteOtherReasonCalled" onchange="handleInputChange(event)">
+          <label for="otherReasonCalled" class="text-input-label">Other Reason Called</label>
+        </div>
+      </fieldset>
+      <!-- Outbound Call Details -->
+      <fieldset id="outbound" data-group-for="outboundDetails" data-group-value="Outbound Call Details" hidden>
+        <h3>Outbound Call Details</h3>
+        <div class="radio-group">
+          <label><input type="radio" id="leftVoicemail" name="outboundDetails" value="Left Voicemail" data-show-note="noteOutboundVM" onchange="handleInputChange(event)">Left Voicemail</label>
+          <label><input type="radio" id="noVmAvailable" name="outboundDetails" value="No VM Available" data-show-note="noteOutboundNoVM" onchange="handleInputChange(event)">No VM Available</label>
+        </div>
+      </fieldset>
+      <!-- Cancelations -->
+      <fieldset id="groupCancelationReason" data-group-for="cancelationReason" data-group-value="Cancelation Reason" hidden>
+        <h3>Cancelation Reason</h3>
+        <div class="two-columns">
+          <label><input type="checkbox" name="cancelationReason" id="ccmCancel" value="CCM Canceled" data-show-groups="canEffective" data-require-groups="canEffective" data-unrequire-groups="groupSave, spouseAsk, raf" data-hide-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteCanEffective" onchange="handleInputChange(event)">CCM Canceled</label>
+          <label><input type="checkbox" name="cancelationReason" id="complaintCancelation" value="Complaint" data-show-note="noteCancelation" onchange="handleInputChange(event)">Complaint</label>
+          <label><input type="checkbox" name="cancelationReason" id="competitorCancel" value="Competitor" data-show-groups="groupCompetitor" data-require-groups="groupCompetitor" data-show-note="noteCancelation" onchange="handleInputChange(event)">Competitor</label>
+          <label><input type="checkbox" id="cost" name="cancelationReason" value="Cost" data-show-note="noteCancelation" onchange="handleInputChange(event)">Cost</label>
+          <label><input type="checkbox" name="cancelationReason" id="customerError" value="Customer Error" data-show-note="noteCancelation" onchange="handleInputChange(event)">Customer Error</label>
+          <label><input type="checkbox" name="cancelationReason" id="deceased" value="Deceased/POA" data-show-groups="canEffective, ffs" data-require-groups="canEffective, ffs" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave,spouseAsk, raf" data-show-note="noteCancelation, noteCanEffective" onchange="handleInputChange(event)">Deceased/POA</label>
+          <label><input type="checkbox" name="cancelationReason" id="divorce" value="Divorce" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk" data-unrequire-groups="groupSave, spouseAsk" data-show-note="noteCancelation, noteSpouseInfo noteCanEffective" onchange="handleInputChange(event)">Divorce</label>
+          <label><input type="checkbox" name="cancelationReason" id="doesNotWant" value="Does not want" data-show-note="noteCancelation" onchange="handleInputChange(event)">Does not want </label>
+          <label><input type="checkbox" name="cancelationReason" id="livingSituation" value="Living Situation" data-show-note="noteCancelation" onchange="handleInputChange(event)">Living Situation</label>
+          <label><input type="checkbox" name="cancelationReason" id="military" value="Military" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteCanEffective" onchange="handleInputChange(event)">Military</label>
+          <label><input type="checkbox" name="cancelationReason" id="movingOutOfUS" value="Moving out of the US" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteCanEffective" onchange="handleInputChange(event)">Moving out of the US</label>
+          <label><input type="checkbox" name="cancelationReason" id="permanentMedical" value="Permanent Medical Condition" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteCanEffective" onchange="handleInputChange(event)">Permanent Medical Condition</label>
+          <label><input type="checkbox" id="priceIncrease" name="cancelationReason" value="Price Increase" data-show-note="noteCancelation" onchange="handleInputChange(event)">Price Increase</label>
+          <label><input type="checkbox" name="cancelationReason" id="spouseDeceased" value="Spouse (Deceased)" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteSpouseInfonoteCanEffective" onchange="handleInputChange(event)">Spouse (Deceased)</label>
+          <label><input type="checkbox" name="cancelationReason" id="spouseOnly" value="Spouse Only" data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse Only</label>
+          <label><input type="checkbox" name="cancelationReason" id="spouseTold" value="Spouse told them to" data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse told them to</label>
+          <label><input type="checkbox" name="cancelationReason" id="temporaryMedical" value="Temporary Medical Condition" data-show-note="noteCancelation" onchange="handleInputChange(event)">Temporary Medical Condition</label>
+        </div>
+      </fieldset>
+      <fieldset id="groupCompetitor" data-group-for="competitors" data-group-value="Competitors" hidden>
+        <h3>Which competitor?</h3>
+        <div class="two-columns">
+          <label><input type="checkbox" name="competitors" id="aor" value="AOR" data-show-note="noteCompetitor" onchange="handleInputChange(event)">AOR</label>
+          <label><input type="checkbox" name="competitors" id="ccwSafe" value="CCW Safe" data-show-note="noteCompetitor" onchange="handleInputChange(event)">CCW Safe</label>
+          <label><input type="checkbox" name="competitors" id="legalShield" value="Legal Shield" data-show-note="noteCompetitor" onchange="handleInputChange(event)">Legal Shield</label>
+          <label><input type="checkbox" name="competitors" id="notDisclosed" value="Not Disclosed" data-show-note="noteCompetitor" onchange="handleInputChange(event)">Not Disclosed</label>
+          <label><input type="checkbox" name="competitors" id="rightToBear" value="Right To Bear" data-show-note="noteCompetitor" onchange="handleInputChange(event)">Right To Bear</label>
+          <label><input type="checkbox" name="competitors" id="work" value="Through employer" data-show-note="noteCompetitor" onchange="handleInputChange(event)">Through employer</label>
+          <label><input type="checkbox" name="competitors" id="usLS" value="US Law Shield" data-show-note="noteCompetitor" onchange="handleInputChange(event)">US Law Shield</label>
+          <label><input type="checkbox" name="competitors" id="otherCompetitor" value="Other" onchange="handleInputChange(event)">Other</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="text" id="otherCompetitorText" name="otherCompetitorText" data-show-note="noteOtherCompetitor" onchange="handleInputChange(event)">
+          <label for="otherCompetitorText" class="text-input-label">Other Competitor</label>
+        </div>
+      </fieldset>
+      <fieldset id="groupSave" data-group-for="save" data-group-value="Was it Saved?" hidden>
+        <h3>Is this a Save?</h3>
+        <div class="radio-group">
+          <label><input type="radio" id="saveY" name="save" value="Yes" data-show-groups="groupSaveReason" data-require-groups="groupSaveReason" data-show-note="noteSaved" onchange="handleInputChange(event)">Yes</label>
+          <label><input type="radio" id="saveN" name="save" value="No" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="spouseAsk, raf" data-unrequire-groups="spouseAsk, raf" onchange="handleInputChange(event)">No</label>
+        </div>
+      </fieldset>
+      <fieldset id="canEffective" data-group-for="canEffectiveDate" data-group-value="Cancelation Effective Date" hidden>
+        <h3>Cancelation Effective</h3>
+        <div class="text-input-container">
+          <input type="date" id="canEffectiveDate" name="canEffectiveDate" data-show-note="noteCanEffective" onchange="handleInputChange(event)">
+          <label for="canEffectiveDate" class="text-input-label">Date</label>
+        </div>
+      </fieldset>
+      <fieldset id="groupSaveReason" data-group-for="reasonSave" data-group-value="How saved" hidden>
+        <h3>How were they saved?</h3>
+        <div  class="two-columns">
+          <label><input type="checkbox" name="reasonSave" id="discountAddedSave" value="Discount Added" data-show-groups="background, discount" data-require-groups="background" data-show-note="noteSaved, noteBackgroundUpdate" onchange="handleInputChange(event)">Discount Added</label>
+          <label><input type="checkbox" name="reasonSave" id="downgradeSave" value="Downgrade" data-show-groups="memberSpouseDowngrade" data-require-groups="memberSpouseDowngrade" data-show-note="noteSaved" onchange="handleInputChange(event)">Downgrade</label>
+          <label><input type="checkbox" name="reasonSave" id="paymentPlanChangeSave" value="Payment Plan Change" data-show-groups="memberSpousePaymentPlanChange" data-require-groups="memberSpousePaymentPlanChange" data-show-note="noteSaved" onchange="handleInputChange(event)">Payment Plan Change</label>
+          <label><input type="checkbox" name="reasonSave" id="sameLevel" value="Same Level" data-show-note="noteSaved" onchange="handleInputChange(event)">Same Level</label>
+          <label><input type="checkbox" name="reasonSave" id="spouseRemoval" value="Spouse Removed" data-show-groups="memberSpouseInfo, canEffective" data-require-groups="memberSpouseInfo, canEffective" data-hide-groups="spouseAsk" data-unrequire-groups="spouseAsk" data-show-note="noteSaved, noteSpouseInfo, noteCanEffective" onchange="handleInputChange(event)">Spouse Removed</label>
+          <label><input type="checkbox" name="reasonSave" id="waivePayment" value="Waive Payment" data-show-groups="waivePaymentInfo" data-require-groups="waivePaymentInfo" data-show-note="noteSaved" onchange="handleInputChange(event)">Waive Payment</label>
+          <label><input type="checkbox" name="reasonSave" id="paymentArrangementSave" value="Payment Arrangement" data-show-groups="paymentArrangement" data-require-groups="paymentArrangement" data-show-note="noteSaved, notePaymentArrangement" onchange="handleInputChange(event)">Payment Arrangement</label>
+          <label><input type="checkbox" name="reasonSave" id="wowItem" value="WOW Item" data-show-groups="wowItems" data-require-groups="wowItems" data-show-note="noteSaved" onchange="handleInputChange(event)">WOW Item</label>
+          <label><input type="checkbox" name="reasonSave" id="otherSave" value="Other Save">Other Save</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="text" id="otherSaveText" name="otherSaveText" data-show-note="noteOtherSave" onchange="handleInputChange(event)">
+          <label for="otherSaveText" class="text-input-label">Other Save Reason</label>
+        </div>
+      </fieldset>
+      <!-- Account Updates -->
+      <fieldset id="accountMaintenance" data-group-for="accountMaint" data-group-value="Account Maintenance" hidden>
+        <h3>What are we doing for the account?</h3>
+        <h4>Information Update</h4>
+        <div class="two-columns">
+        <label><input type="checkbox" name="accountMaint" id="address" value="Address" data-show-note="noteAddressUpdate" onchange="handleInputChange(event)">Address</label>
+        <label><input type="checkbox" name="accountMaint" id="attorney" value="Attorney" data-show-groups="memberSpouseAttorney" data-require-groups="memberSpouseAttorney" data-show-note="noteAttorneyUpdate" onchange="handleInputChange(event)">Attorney</label>
+        <label><input type="checkbox" name="accountMaint" id="backgroundSelection" value="Background" data-show-groups="background, discount" data-require-groups="background" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">Background</label>
+        <label><input type="checkbox" name="accountMaint" id="emailUpdate" value="Email Address" data-show-groups="memberSpouseEmail" data-require-groups="memberSpouseEmail" data-show-note="noteEmailUpdate" onchange="handleInputChange(event)">Email Address</label>
+        <label><input type="checkbox" name="accountMaint" id="emergency" value="Emergency Contact" data-show-groups="memberSpouseEmergency" data-require-groups="memberSpouseEmergency" data-show-note="noteEmergencyUpdate" onchange="handleInputChange(event)">Emergency Contact</label>
+        <label><input type="checkbox" name="accountMaint" id="name" value="Name" data-show-groups="memberSpouseName" data-require-groups="memberSpouseName" data-show-note="noteNameUpdate" onchange="handleInputChange(event)">Name</label>
+        <label><input type="checkbox" name="accountMaint" id="phoneUpdate" value="Phone Number" data-show-groups="memberSpousePhone" data-require-groups="memberSpousePhone" data-show-note="notePhoneUpdate" onchange="handleInputChange(event)">Phone Number</label>
+        </div>
+        <h4>Billing</h4>
+        <div class="two-columns">
+        <label><input type="checkbox" name="accountMaint" id="paymentQuestions" value="Payment Questions" data-show-note="noteBillingQuestions" onchange="handleInputChange(event)">Payment Questions</label>
+        <label><input type="checkbox" name="accountMaint" id="paymentArrangementSelection" value="Payment Arrangement" data-show-groups="paymentArrangement" data-require-groups="paymentArrangement" data-show-note="notePaymentArrangement" onchange="handleInputChange(event)">Payment Arrangement</label>
+        <label><input type="checkbox" name="accountMaint" id="updatePayment" value="Update Payment Info" data-show-note="noteUpdatePaymentInfo" onchange="handleInputChange(event)">Update Payment Info</label>
+        </div>
+        <h4>Level/Payment Plan Change</h4>
+        <div class="two-columns">
+        <label><input type="checkbox" name="accountMaint" id="paymentPlanChange" value="Payment Plan Change" data-show-groups="memberSpousePaymentPlanChange" data-require-groups="memberSpousePaymentPlanChange" onchange="handleInputChange(event)">Payment Plan Change</label>
+        <label><input type="checkbox" name="accountMaint" id="downgrade" value="Downgrade" data-show-groups="memberSpouseDowngrade" data-require-groups="memberSpouseDowngrade" onchange="handleInputChange(event)">Downgrade</label>
+        <label><input type="checkbox" name="accountMaint" id="upgrade" value="Upgrade" data-show-groups="memberSpouseUpgrade" data-require-groups="memberSpouseUpgrade" onchange="handleInputChange(event)">Upgrade</label>
+        </div>
+        <h4>Other</h4>
+        <div class="two-columns">
+        <label><input type="checkbox" name="accountMaint" id="promoQuestions" value="Promo Questions" data-show-groups="promos" data-require-groups="promos" data-show-note="notePromoQuestions" onchange="handleInputChange(event)">Promo Questions</label>
+        <label><input type="checkbox" name="accountMaint" id="coupons" value="Provide Coupon Code" data-show-groups="couponCodes" data-require-groups="couponCodes" data-show-note="noteProvideCouponCode" onchange="handleInputChange(event)">Provide Coupon Code</label>
+        <label><input type="checkbox" name="accountMaint" id="referralQuestions" value="Referral Questions" data-show-note="noteReferralQuestions" onchange="handleInputChange(event)">Referral Questions</label>
+        <label><input type="checkbox" name="accountMaint" id="linkReferral" value="Link Referral" data-show-groups="couponCodes" data-require-groups="coouponCodes" data-show-note="noteLinkReferral, noteProvideCouponCode" onchange="handleInputChange(event)">Link Referral</label>
+        </div>
+      </fieldset>
+      <!-- Member or spouse selectors -->
+      <fieldset id="memberSpouseName" data-group-for="spouseMemberName" data-group-value="Name Change" hidden>
+        <h3>Is the name change for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberName" name="spouseMemberName" value="Member" data-show-note="noteNameUpdate" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpouseName" name="spouseMemberName" value="Spouse" data-show-note="noteSpouseInfo, noteNameUpdate" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberSpouseEmail" data-group-for="spouseMemberEmail" data-group-value="Email Update" hidden>
+        <h3>Is the email address update for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberEmail" name="spouseMemberEmail" value="Member" data-show-note="noteEmailUpdate" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpouseEmail" name="spouseMemberEmail" value="Spouse" data-show-note="noteSpouseInfo, noteEmailUpdate" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberSpousePhone" data-group-for="spouseMemberPhone" data-group-value="Phone Number Update" hidden>
+        <h3>Is the phone number update for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberPhone" name="spouseMemberPhone" value="Member" data-show-note="notePhoneUpdate" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpousePhone" name="spouseMemberPhone" value="Spouse" data-show-note="noteSpouseInfo, notePhoneUpdate" onchange="handleInputChange(event)">Spouse</label>
+      </div>
+      </fieldset>
+      <fieldset id="memberSpouseAttorney" data-group-value="Attorney Update" data-group-for="spouseMemberAttorney" hidden>
+        <h3>Is the attorney selection for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberAttorney" name="spouseMemberAttorney" value="Member" data-show-note="noteAttorneyUpdate" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpouseAttorney" name="spouseMemberAttorney" value="Spouse" data-show-note="noteSpouseInfo, noteAttorneyUpdate" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberSpouseEmergency" data-group-for="spouseMemberEmergency" data-group-value="Emergency Contact Update" hidden>
+        <h3>Is the emergency contact for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberEmergency" name="spouseMemberEmergency" value="Member" data-show-note="noteEmergencyUpdate" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpouseEmergency" name="spouseMemberEmergency" value="Spouse Emergency Contact Update" data-show-note="noteSpouseInfo, noteEmergencyUpdate" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <!-- Member Level/Payment Plan Changes -->
+      <fieldset id="memberSpouseUpgrade" data-group-for="spouseMemberUpgrade" data-group-value="Upgrade" hidden>
+        <h3>Is this upgrade for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberUpgrade" name="spouseMemberUpgrade" value="Member Upgrade" data-show-groups="memberLevelChangeUpgrade" data-require-groups="memberLevelChangeUpgrade" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpouseUpgrade" name="spouseMemberUpgrade" value="Spouse Upgrade" data-show-groups="spouseLevelChangeUpgrade" data-require-groups="spouseLevelChangeUpgrade" data-show-note="noteSpouseInfo, noteSpouseUpgrade" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberLevelChangeUpgrade" data-group-for="startLevelMemberUpgrade, memberStartUpPaymentPlan, memberStartUpRate, MemberStartUpgradeDiscounted, finishLevelMemberUpgrade, memberFinishUpPaymentPlan, memberUpgradeRatePlan, memberUpgradeDiscounted, memberUpgradeEffective" data-group-value="Member Upgrade" hidden>
+        <h3>Upgrade Member From </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartUpSilver" name="startLevelMemberUpgrade" value="Silver" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Silver</label>
+          <label><input type="radio" id="memberStartUpGold" name="startLevelMemberUpgrade" value="Gold" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Gold</label>
+          <label><input type="radio" id="memberStartUpPlatinum" name="startLevelMemberUpgrade" value="Platinum" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Platinum</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartUpMonthly" name="memberStartUpPaymentPlan" value="Monthly" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="memberStartUpAnnual" name="memberStartUpPaymentPlan" value="Annual" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartUpLegacy" name="memberStartUpRate" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="memberStartUpLoyalty" name="memberStartUpRate" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="memberStartUp15" name="memberStartUpRate" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartUpgradeDiscountNone" name="memberUpgradeDiscounted" value="" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">None</label>
+          <label><input type="radio" id="memberStartUpgradeDiscount10" name="memberUpgradeDiscounted" value="10% Discount" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">10%</label>
+          <label><input type="radio" id="memberStartUpgradeDiscount15" name="memberUpgradeDiscounted" value="15% Discount" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">15%</label>
+          <label><input type="radio" id="memberStartUpgradeDiscount20" name="memberUpgradeDiscounted" value="20% Discount" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">20%</label>
+        </div>
+        <h3>to </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="memberFinishUpGold" name="finishLevelMemberUpgrade" value="Gold" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Gold</label>
+          <label><input type="radio" id="memberFinishUpPlatinum" name="finishLevelMemberUpgrade" value="Platinum" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Platinum</label>
+          <label><input type="radio" id="memberFinishUpElite" name="finishLevelMemberUpgrade" value="Elite" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Elite</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberFinishUpPaymentMonthly" name="memberFinishUpPaymentPlan" value="Monthly" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="memberFinishUpPaymentAnnual" name="memberFinishUpPaymentPlan" value="Annual" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberUpgradeRateLegacy" name="memberUpgradeRatePlan" value="Legacy" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="memberUpgradeRateLoyalty" name="memberUpgradeRatePlan" value="Loyalty" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="memberUpgradeRate15" name="memberUpgradeRatePlan" value="15.0" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberUpgradeDiscountNone" name="memberFinishUpgradeDiscounted" value="" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">None</label>
+          <label><input type="radio" id="memberUpgradeDiscount10" name="memberFinishUpgradeDiscounted" value="10% Discount" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">10%</label>
+          <label><input type="radio" id="memberUpgradeDiscount15" name="memberFinishUpgradeDiscounted" value="15% Discount" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">15%</label>
+          <label><input type="radio" id="memberUpgradeDiscount20" name="memberFinishUpgradeDiscounted" value="20% Discount" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">20%</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="date" id="memberUpgradeEffective" name="memberUpgradeEffective" data-show-note="noteMemberUpgrade" onchange="handleInputChange(event)">
+          <label for="memberUpgradeEffective" class="text-input-label">Upgrade Effective Date</label>
+        </div>
+      </fieldset>      
+      <fieldset id="memberSpouseDowngrade" data-group-for="spouseMemberDowngrade" data-group-value="Downgrade" hidden>
+        <h3>Is this downgrade for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberDowngrade" name="spouseMemberDowngrade" value="Member Downgrade" data-show-groups="memberLevelChangeDowngrade" data-require-groups="memberLevelChangeDowngrade" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpouseDowngrade" name="spouseMemberDowngrade" value="Spouse Downgrade" data-show-groups="spouseLevelChangeDowngrade" data-require-groups="spouseLevelChangeDowngrade" data-show-note="noteSpouseInfo, noteSpouseDowngrade" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberLevelChangeDowngrade" data-group-for="startLevelMemberDowngrade, memberStartDownPaymentPlan, memberStartDownRate, memberStartDownDiscounted, finishLevelMemberDowngrade, memberFinishDownPaymentPlan, memberFinishDownRatePlan, memberFinishDownDiscounted, memberFinishDownEffective" data-group-value="Member Downgrade" hidden>
+        <h3>Downgrade Member From </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartDownPlatinum" name="startLevelMemberDowngrade" value="Platinum" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Platinum</label>
+          <label><input type="radio" id="memberStartDownElite" name="startLevelMemberDowngrade" value="Elite" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Elite</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartDownMonthly" name="memberStartDownPaymentPlan" value="Monthly" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="memberStartDownAnnual" name="memberStartDownPaymentPlan" value="Annual" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartDownLegacy" name="memberStartDownRate" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="memberStartDownLoyalty" name="memberStartDownRate" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="memberStartDown15" name="memberStartDownRate" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberStartDownDiscountNone" name="memberStartDownDiscounted" value="" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">None</label>
+          <label><input type="radio" id="memberStartDownDiscount10" name="memberStartDownDiscounted" value="10% Discount" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">10%</label>
+          <label><input type="radio" id="memberStartDownDiscount15" name="memberStartDownDiscounted" value="15% Discount" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">15%</label>
+          <label><input type="radio" id="memberStartDownDiscount20" name="memberStartDownDiscounted" value="20% Discount" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">20%</label>
+        </div>
+        <h3>to </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="memberFinishDownGold" name="finishLevelMemberDowngrade" value="Gold" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Gold</label>
+          <label><input type="radio" id="memberFinishDownPlatinum" name="finishLevelMemberDowngrade" value="Platinum" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Platinum</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberFinishDownPaymentMonthly" name="memberFinishDownPaymentPlan" value="Monthly" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="memberFinishDownPaymentAnnual" name="memberFinishDownPaymentPlan" value="Annual" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberFinishDownRateLegacy" name="memberFinishDownRatePlan" value="Legacy" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="memberFinishDownRateLoyalty" name="memberFinishDownRatePlan" value="Loyalty" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="memberFinishDownRate15" name="memberFinishDownRatePlan" value="15.0" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="memberFinishDownDiscountNone" name="memberFinishDownDiscounted" value="" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">None</label>
+          <label><input type="radio" id="memberFinishDownDiscount10" name="memberFinishDownDiscounted" value="10% Discount" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">10%</label>
+          <label><input type="radio" id="memberFinishDownDiscount15" name="memberFinishDownDiscounted" value="15% Discount" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">15%</label>
+          <label><input type="radio" id="memberFinishDownDiscount20" name="memberFinishDownDiscounted" value="20% Discount" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">20%</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="date" id="memberDownEffective" name="memberDownEffective" data-show-note="noteMemberDowngrade" onchange="handleInputChange(event)">
+          <label for="memberDownEffective" class="text-input-label">Downgrade Effective Date</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberSpousePaymentPlanChange" data-group-for="spouseMemberPaymentPlanChange" data-group-value="Payment Plan Change" hidden>
+        <h3>Is this payment plan change for the member or spouse?</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" id="forMemberPaymentPlanChange" name="spouseMemberPaymentPlanChange" value="Member Payment Plan Change" data-show-groups="memberPaymentPlanChange" data-require-groups="memberPaymentPlanChange" data-show-note="noteMemberPaymentPlanChange" onchange="handleInputChange(event)">Member</label>
+        <label><input type="checkbox" id="forSpousePaymentPlanChange" name="spouseMemberPaymentPlanChange" value="Spouse Payment Plan Change" data-show-groups="spousePaymentPlanChange" data-require-groups="spousePaymentPlanChange" data-show-note="noteSpousePaymentPlanChange" onchange="handleInputChange(event)">Spouse</label>
+        </div>
+      </fieldset>
+      <fieldset id="memberPaymentPlanChange" data-group-for="paymentPlanMember, memberPaymentPlanEffective" data-group-value="Member Payment Plan Change" hidden>
+        <h3>What is the Member's Payment Plan change?</h3>
+        <div class="radio-group">
+          <label><input type="radio" id="memberPaymentPlanMtoA" name="paymentPlanMember" value="Monthly to Annual" data-show-note="noteMemberPaymentPlanChange" onchange="handleInputChange(event)">Monthly to Annual</label>
+          <label><input type="radio" id="memberPaymentPlanAtoM" name="paymentPlanMember" value="Annual to Monthly" data-show-note="noteMemberPaymentPlanChange" onchange="handleInputChange(event)">Annual to Monthly</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="date" id="memberPaymentPlanEffective" name="memberPaymentPlanEffective" data-show-note="noteMemberPaymentPlanChange" onchange="handleInputChange(event)">
+          <label for="memberPaymentPlanEffective" class="text-input-label">Payment Plan Effective Date</label>
+        </div>
+      </fieldset>
+      <!-- Spouse Information -->
+      <fieldset id="memberSpouseInfo" data-group-for="fullNameSpouse, memberIDSpouse" data-group-value="Spouse Info" hidden>
+        <h3>Spouse Info</h3>
+        <div class="input-row">
+          <div class="text-input-container">
+            <input type="text" id="fullNameSpouse" name="fullNameSpouse" data-show-note="noteSpouseInfo" onchange="handleInputChange(event)">
+            <label for="fullNameSpouse" class="text-input-label">Full Name</label>
+            </div>
+            <div class="text-input-container">
+            <input type="text" id="memberIDSpouse" name="memberIDSpouse" data-show-note="noteSpouseInfo" onchange="handleInputChange(event)">
+            <label for="memberIDSpouse" class="text-input-label">ID#</label>
+          </div>
+        </div>
+      </fieldset>
+      <!-- Spouse Level/Payment Plan Changes -->
+      <fieldset id="spouseLevelChangeUpgrade" data-group-for="startLevelSpouseUpgrade, spouseStartUpRate, spouseStartUpPaymentPlan, finishLevelSpouseUpgrade, spouseFinishUpRate, spouseUpgradePaymentPlan, spouseUpgradeEffective" data-group-value="Spouse Upgrade" hidden>
+        <h3>Upgrade Spouse From </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="spouseStartUpGold" name="startLevelSpouseUpgrade" value="Spouse Gold" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)"> Spouse Gold</label>
+          <label><input type="radio" id="spouseStartUpPlatinum" name="startLevelSpouseUpgrade" value="Spouse Platinum" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Spouse Platinum</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseStartUpRateLegacy" name="spouseStartUpRate" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="spouseStartUpRateLoyalty" name="spouseStartUpRate" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="spouseStartUpRate15" name="spouseStartUpRate" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseStartUpPaymentPlanMonthly" name="spouseStartUpPaymentPlan" value="Monthly" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="spouseStartUpPaymentPlanAnnual" name="spouseStartUpPaymentPlan" value="Annual" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <h3>to </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="spouseFinishUpPlatinum" name="finishLevelSpouseUpgrade" value="Spouse Platinum" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Spouse Platinum</label>
+          <label><input type="radio" id="spouseFinishUpElite" name="finishLevelSpouseUpgrade" value="Spouse Elite" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Spouse Elite</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseFinishUpRateLegacy" name="spouseFinishUpRate" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="spouseFinishUpRateLoyalty" name="spouseFinishUpRate" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="spouseFinishUpRate15" name="spouseFinishUpRate" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseUpgradePaymentMonthly" name="spouseUpgradePaymentPlan" value="Monthly" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="spouseUpgradePaymentAnnual" name="spouseUpgradePaymentPlan" value="Annual" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="date" id="spouseUpgradeEffective" name="spouseUpgradeEffective" data-show-note="noteSpouseUpgrade" onchange="handleInputChange(event)">
+          <label for="spouseUpgradeEffective" class="text-input-label">Upgrade Effective Date</label>
+        </div>
+      </fieldset>
+      <fieldset id="spouseLevelChangeDowngrade" data-group-for="startLevelSpouseDowngrade, spouseStartDownRate, spouseStartDownPaymentPlan, finishLevelSpouseDowngrade, spouseFinishDownRate, spouseFinishDownPaymentPlan, spouseDowngradeEffective" data-group-value="Spouse Downgrade" hidden>
+        <h3>Downgrade Spouse From </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="spouseStartDownPlatinum" name="startLevelSpouseDowngrade" value="Spouse Platinum" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Spouse Platinum</label>
+          <label><input type="radio" id="spouseStartDownElite" name="startLevelSpouseDowngrade" value="Spouse Elite" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Spouse Elite</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseStartDownRateLegacy" name="spouseStartDownRate" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="spouseStartDownRateLoyalty" name="spouseStartDownRate" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="spouseStartDownRate15" name="spouseStartDownRate" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseStartDownPaymentPlanMonthly" name="spouseStartDownPaymentPlan" value="Monthly" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="spouseStartDownPaymentPlanAnnual" name="spouseStartDownPaymentPlan" value="Annual" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <h3>to </h3>
+        <div class="radio-group">
+          <label><input type="radio" id="spouseFinishDownGold" name="finishLevelSpouseDowngrade" value="Spouse Gold" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Spouse Gold</label>
+          <label><input type="radio" id="spouseFinishDownPlatinum" name="finishLevelSpouseDowngrade" value="Spouse Platinum" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Spouse Platinum</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseFinishDownRateLegacy" name="spouseFinishDownRate" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Legacy</label>
+          <label><input type="radio" id="spouseFinishDownRateLoyalty" name="spouseFinishDownRate" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Loyalty</label>
+          <label><input type="radio" id="spouseFinishDownRate15" name="spouseFinishDownRate" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">15.0</label>
+        </div>
+        <hr class="rounded">
+        <div class="radio-group">
+          <label><input type="radio" id="spouseFinishDownPaymentPlanMonthly" name="spouseFinishDownPaymentPlan" value="Monthly" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Monthly</label>
+          <label><input type="radio" id="spouseFinishDownPaymentPlanAnnual" name="spouseFinishDownPaymentPlan" value="Annual" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">Annual</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="date" id="spouseDowngradeEffective" name="spouseDowngradeEffective" data-show-note="noteSpouseDowngrade" onchange="handleInputChange(event)">
+          <label for="spouseDowngradeEffective" class="text-input-label">Downgrade Effective Date</label>
+        </div>
+      </fieldset>
+      <fieldset id="spousePaymentPlanChange" data-group-for="paymentPlanSpouse, spousePaymentPlanEffective" data-group-value="Spouse Payment Plan Change" hidden>
+        <h3>What is the Spouse's Payment Plan change?</h3>
+        <div class="radio-group">  
+          <label><input type="radio" id="spousePaymentPlanMtoA" name="paymentPlanSpouse" value="Spouse Monthly to Annual" data-show-note="noteSpousePaymentPlanChange" onchange="handleInputChange(event)">Spouse Monthly to Annual</label>
+          <label><input type="radio" id="spousePaymentPlanAtoM" name="paymentPlanSpouse" value="Spouse Annual to Monthly" data-show-note="noteSpousePaymentPlanChange" onchange="handleInputChange(event)">Spouse Annual to Monthly</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="date" id="spousePaymentPlanEffective" name="spousePaymentPlanEffective" data-show-note="noteSpousePaymentPlanChange" onchange="handleInputChange(event)">
+          <label for="spousePaymentPlanEffective" class="text-input-label">Payment Plan Effective Date</label>
+        </div>
+      </fieldset>
+      <!-- Background -->
+      <fieldset id="background" data-group-for="backgroundSelect" data-group-value="Background" hidden>
+        <h4>Primary Member Background</h4>
+        <div  class="two-columns">
+          <label><input type="checkbox" name="backgroundSelect" id="primaryFirstResponder" value="First Responder" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">First Responder</label>
+          <label><input type="checkbox" name="backgroundSelect" id="primaryLEO" value="LEO" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">LEO</label>
+          <label><input type="checkbox" name="backgroundSelect" id="primaryMilitary" value="Military" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">Military</label>
+          <label><input type="checkbox" name="backgroundSelect" id="seeSpouse" value="See Spouse" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">See Spouse</label>
+          <label><input type="checkbox" name="backgroundSelect" id="primaryOther" value="Other Background" onchange="handleInputChange(event)">Other</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="text" id="primaryOtherBackground" name="primaryOtherBackground" data-show-note="noteOtherMemberBackground" onchange="handleInputChange(event)">
+          <label for="primaryOtherBackground" class="text-input-label">Other Primary Background</label>
+        </div>
+        <hr class="rounded">
+        <h4>Spouse Background</h4>
+        <div  class="two-columns">
+          <label><input type="checkbox" name="backgroundSelect" id="spouseFirstResponder" value="Spouse First Responder" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">First Responder</label>
+          <label><input type="checkbox" name="backgroundSelect" id="spouseLEO" value="Spouse LEO" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">LEO</label>
+          <label><input type="checkbox" name="backgroundSelect" id="spouseMilitary" value="Spouse Military" data-show-note="noteBackgroundUpdate" onchange="handleInputChange(event)">Military</label>
+          <label><input type="checkbox" name="backgroundSelect" id="spouseOther" value="Spouse Other Background" onchange="handleInputChange(event)">Other</label>
+        </div>
+        <hr class="rounded">
+        <div class="text-input-container">
+          <input type="text" id="spouseOtherBackground" name="spouseOtherBackground" data-show-note="noteOtherSpouseBackground" onchange="handleInputChange(event)">
+          <label for="spouseOtherBackground" class="text-input-label">Other Spouse Background</label>
+        </div>
+      </fieldset>
+      <fieldset id="discount" data-group-for="discountAdded" data-group-value="Discount Applied" hidden>
+      <h3>Was a Discount Applied?</h3>
+      <label><input type="checkbox" id="discountAdded" name="discountAdded" value="Discount Applied">Yes</label>
+      </fieldset>
+      <!-- Payment/Refund -->
+      <fieldset id="groupPaymentRefund" class="two-columns" data-group-for="paymentDue, paymentProcessed, refund" data-group-value="Payment/Refund Selectors" hidden>
+      <label><input type="checkbox" id="paymentDue" name="paymentDue" value="Payment due on account" data-show-note="notePaymentDue" onchange="handleInputChange(event)">Payment due on account</label>
+      <label><input type="checkbox" id="paymentProcessed" name="paymentProcessed" value="Payment processed" data-show-note="notePaymentProcessed" onchange="handleInputChange(event)">Payment Processed</label>
+      <label><input type="checkbox" id="refund" name="refund" value="Refund processed" data-show-note="noteRefundProcessed" onchange="handleInputChange(event)">Refund processed</label>
+      </fieldset>
+      <!-- Payment Information -->
+      <fieldset id="whichAccount" data-group-for="whatKindAccount" data-group-value="Payment Selection" hidden>
+      <h3>Payment Info</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" id="primary" name="whatKindAccount" value="Payment" data-show-groups="MemberPayment" data-require-groups="MemberPayment" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">Member Account Payment</label>
+      <label><input type="checkbox" id="gifted" name="whatKindAccount" value="Gifted Payment" data-show-groups="giftedPayment" data-require-groups="giftedPayment" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">Gifted Account Payment</label>
+      </div>
+      </fieldset>
+      <fieldset id="MemberPayment" data-group-for="achCard, memberAmount, memberLast4" data-group-value="Member Payment" hidden>
+      <h3>Member Payment Info</h3>
+      <div class="radio-group">
+      <label><input type="radio" id="card" name="achCard" value="Card" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">Card</label>
+      <label><input type="radio" id="ach" name="achCard" value="ACH" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">ACH</label>
+      <label><input type="radio" id="check" name="achCard" value="Check" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">Check</label>
+      </div>
+      <hr class="rounded">
+      <label><input type="checkbox" id="memberOneTimePayment" name="memberOneTimePayment" value="One Time Payment" data-show-note="noteMemberOneTimePayment" onchange="handleInputChange(event)">One Time Payment</label>
+      <hr class="rounded">
+      <div class="input-row" >
+      <div class="text-input-container">
+      <input type="text" id="memberAmount" name="memberAmount" data-type="currency" inputmode="numeric" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">
+      <label for="memberAmount" class="text-input-label">Amount</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="memberLast4" name="memberLast4" pattern="\d{4}" maxlength="4" data-show-note="noteMemberPayment" onchange="handleInputChange(event)">
+      <label for="memberLast4" class="text-input-label">Last 4</label>
+      </div>
+      </div>
+      </fieldset>
+      <fieldset id="refundIssued" data-group-for="achCardRefund, memberRefundAmount, memberRefundLast4" data-group-value="Refunds" hidden>
+      <h3>Refund Info</h3>
+      <div class="radio-group">
+      <label><input type="radio" id="cardRefund" name="achCardRefund" value="Card" data-show-note="noteRefund" onchange="handleInputChange(event)">Card</label>
+      <label><input type="radio" id="achRefund" name="achCardRefund" value="ACH" data-show-note="noteRefund" onchange="handleInputChange(event)">ACH</label>
+      <label><input type="radio" id="checkRefund" name="achCardRefund" value="Check" data-show-note="noteRefund" onchange="handleInputChange(event)">Check</label>
+      </div>
+      <hr class="rounded">
+      <div class="input-row" >
+      <div class="text-input-container">
+      <input type="text" id="memberRefundAmount" name="memberRefundAmount" data-type="currency" inputmode="numeric" data-show-note="noteRefund" onchange="handleInputChange(event)">
+      <label for="memberRefundAmount" class="text-input-label">Amount</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="memberRefundLast4" name="memberRefundLast4" pattern="\d{4}" maxlength="4" data-show-note="noteRefund" onchange="handleInputChange(event)">
+      <label for="memberRefundLast4" class="text-input-label">Last 4</label>
+      </div>
+      </div>
+      </fieldset>
+      <!-- Gifted Payments -->
+      <fieldset id="giftedPayment" data-group-for="giftedFullName, giftedMemberID, achCardGifted, memberGiftedAmount, memberGiftedLast4" data-group-value="Gifted Payment" hidden>
+      <h3>Gifted Payment Info</h3>
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="text" id="giftedFullName" name="giftedFullName" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">
+      <label for="giftedFullName" class="text-input-label">Full Name</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="giftedMemberID" name="giftedMemberID" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">
+      <label for="giftedMemberID" class="text-input-label">ID#</label>
+      </div>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="cardGifted" name="achCardGifted" value="Card" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">Card</label>
+      <label><input type="radio" id="achGifted" name="achCardGifted" value="ACH" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">ACH</label>
+      </div>
+      <hr class="rounded">
+      <label><input type="checkbox" id="memberOneTimeGiftedPayment" name="memberOneTimeGiftedPayment" data-show-note="noteGiftedOneTimePayment" onchange="handleInputChange(event)">One Time Payment</label>
+      <hr class="rounded">
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="text" id="memberGiftedAmount" name="memberGiftedAmount" data-type="currency" inputmode="numeric" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">
+      <label for="memberGiftedAmount" class="text-input-label">Amount</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="memberGiftedLast4" name="memberGiftedLast4" pattern="\d{4}" maxlength="4" data-show-note="noteGiftedPayment" onchange="handleInputChange(event)">
+      <label for="memberGiftedLast4" class="text-input-label">Last 4</label>
+      </div>
+      </div>
+      </fieldset>
+      <!-- Payment Arrangements -->
+      <fieldset id="paymentArrangement" data-group-for="paymentArrangementSelect" data-group-value="Payment Arrangements" hidden>
+      <h3>Payment Arrangement Info</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" id="waivedPayment" name="paymentArrangementSelect" value="Waive Payment" data-show-groups="waivePaymentInfo" data-require-groups="waivePaymentInfo" data-show-note="notePaymentArrangement, noteWaivePayment" onchange="handleInputChange(event)">Waive Payment</label>
+      <label><input type="checkbox" id="changeBillingDueDate" name="paymentArrangementSelect" value="Change Billing Due Date" data-show-groups="dueDateChange" data-require-groups="dueDateChange" data-show-note="notePaymentArrangement, noteDueDateChange" onchange="handleInputChange(event)">Change Billing Due Date</label>
+      <label><input type="checkbox" id="pausePaymentReminders" name="paymentArrangementSelect" value="Pause Payment Reminders" data-show-note="notePaymentArrangement" onchange="handleInputChange(event)">Pause Payment Reminders</label>
+      <label><input type="checkbox" name="paymentArrangementSelect" id="skipAutoCancel" value="Skip for AutoCancel" data-show-note="notePaymentArrangement" onchange="handleInputChange(event)">Skip for AutoCancel</label>
+      <label><input type="checkbox" id="autoPayOn" name="paymentArrangementSelect" value="AutoPay On" data-show-note="notePaymentArrangement" onchange="handleInputChange(event)">AutoPay On</label>
+      <label><input type="checkbox" id="autoPayOff" name="paymentArrangementSelect" value="AutoPay Off" data-show-note="notePaymentArrangement" onchange="handleInputChange(event)">AutoPay Off</label>
+      <label><input type="checkbox" id="autoRenewOn" name="paymentArrangementSelect" value="AutoRenew On" data-show-note="notePaymentArrangement" onchange="handleInputChange(event)">AutoRenew On</label>
+      <label><input type="checkbox" id="autoRenewOff" name="paymentArrangementSelect" value="AutoRenew Off" data-show-groups="renewOffReason" data-require-groups="renewOffReason" data-show-note="notePaymentArrangement, noteReasonRenewOff" onchange="handleInputChange(event)">AutoRenew Off</label>
+      </div>
+      </fieldset>
+      <fieldset id="waivePaymentInfo" data-group-for="waivePayment" data-group-value="Waive Payment" hidden>
+      <h3>Waive Payment</h3>
+      <input type="date" id="waivePaymentDate" name="waivePaymentDate" data-show-note="noteWaivePayment" onchange="handleInputChange(event)">
+      <label for="waivePaymentDate" class="text-input-label">Waived Payment Date</label>
+      </fieldset>
+      <fieldset class="dueDateChange" data-group-for="oldDueDate, newDueDate" data-group-value="Change Billing Due Date" hidden>
+      <h3>Due Date Change Info</h3>
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="number" id="oldDueDate" name="oldDueDate" min="1" max="31" step="1" data-show-note="noteDueDateChange" onchange="handleInputChange(event)">
+      <label for="oldDueDate" class="text-input-label">Old Due Date</label>
+      </div>
+      <div class="text-input-container">
+      <input type="number" id="newDueDate" name="newDueDate" min="1" max="31" step="1" data-show-note="noteDueDateChange" onchange="handleInputChange(event)">
+      <label for="newDueDate" class="text-input-label">New Due Date</label>
+      </div>
+      </div>
+      </fieldset>
+      <fieldset id="renewOffReason" data-group-for="reasonAutoRenewOff, otherAutoRenewOffReasonText" data-group-value="AutoRenew Off" hidden>
+      <h3>Reason AutoRenew Off</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="reasonAutoRenewOff" id="checkPayment" value="Mailing Check" data-show-note="noteReasonRenewOff" onchange="handleInputChange(event)">Mailing Check</label>
+      <label><input type="checkbox" name="reasonAutoRenewOff" id="moreReminders" value="Wants more reminders" data-show-note="noteReasonRenewOff" onchange="handleInputChange(event)">Wants more reminders</label>
+      <label><input type="checkbox" name="reasonAutoRenewOff" id="manualPayment" value="Will Pay Manually" data-show-note="noteReasonRenewOff" onchange="handleInputChange(event)">Will Pay Manually</label>
+      <label><input type="checkbox" name="reasonAutoRenewOff" id="willNotRenew" value="Will not Renew" data-show-groups="groupCancelationReason, groupSave, membershipInformation" data-require-groups="groupCancelationReason, groupSave" data-show-note="noteReasonRenewOff" onchange="handleInputChange(event)">Will not Renew</label>
+      <label><input type="checkbox" name="reasonAutoRenewOff" id="otherAutoRenewOffReason" value="Other" data-show-note="noteOtherReasonRenewOff" onchange="handleInputChange(event)">Other</label>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="otherAutoRenewOffReasonText" name="otherAutoRenewOffReasonText" data-show-note="noteOtherReasonRenewOff" onchange="handleInputChange(event)">
+      <label for="otherAutoRenewOffReasonText" class="text-input-label">Other Reason</label>
+      </fieldset>
+      <!-- Promotions -->
+      <fieldset id="promos" data-group-for="promo" data-group-value="Promotions" hidden>
+      <h3>Promo Questions</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="promo" id="brokenItems" value="Broken Promo Items">Broken Items</label>
+      <label><input type="checkbox" name="promo" id="promoExchange" value="Promo Exchange">Exchange</label>
+      <label><input type="checkbox" name="promo" id="missingItems" value="Missing Promo Items">Missing Items</label>
+      <label><input type="checkbox" name="promo" id="notReceived" value="Promo Not Received">Not Received</label>
+      <label><input type="checkbox" name="promo" id="promoQuestion" value="Promo Questions">Questions</label>
+      </div>
+      <hr class="rounded">
+      <div class="text-input-container">
+      <input type="text" id="promoQuestionsAddressed" name="promoQuestionsAddressed" data-show-note="notePromoQuestionsAddressed" onchange="handleInputChange(event)">
+      <label for="promoQuestionsAddressed" class="text-input-label">Questions Addressed</label>
+      </div>
+      <hr class="rounded">
+      <div class="text-input-container">
+      <input type="text" id="promoItems" name="promoItems" data-show-note="notePromoItems" onchange="handleInputChange(event)">
+      <label for="promoItems" class="text-input-label">Items</label>
+      </div>
+      </fieldset>
+      <!-- Coupons -->
+      <fieldset id="couponCodes" data-group-for="couponType, couponCodeGiven" data-group-value="Coupons" hidden>
+      <h3>Coupon Type</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="couponType" id="partner" value="Partner Discount" data-show-note="noteProvideCouponCode" onchange="handleInputChange(event)">Partner Discount</label>
+      <label><input type="checkbox" name="couponType" id="rafCoupon" value="RAF" data-show-note="noteProvideCouponCode" onchange="handleInputChange(event)">RAF</label>
+      <label><input type="checkbox" name="couponType" id="renewal" value="Renewal" data-show-note="noteProvideCouponCode" onchange="handleInputChange(event)">Renewal</label>
+      <label><input type="checkbox" name="couponType" id="storeCoupon" value="Store" data-show-note="noteProvideCouponCode" onchange="handleInputChange(event)">Store</label>
+      </div>
+      <hr class="rounded">
+      <div class="text-input-container">
+      <input type="text" id="couponCodeGiven" name="couponCodeGiven" data-show-note="noteProvideCouponCode" onchange="handleInputChange(event)">
+      <label for="couponCodeGiven" class="text-input-label">Code</label>
+      </div>
+      </fieldset>
+      <!-- Member Benefits -->
+      <fieldset id="membershipInformation" data-group-for="membershipInformation" data-group-value="Membership Information Reviewed" hidden>
+      <h3>Membership Information Reviewed</h3>
+      <h4>Benefits</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="membershipInformation" id="levels" value="Level Differences" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Level Differences</label>
+      <label><input type="checkbox" name="membershipInformation" id="price" value="15.0 Price" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)"> 15.0 Price</label>
+      <label><input type="checkbox" name="membershipInformation" id="loyaltyPrice" value="Loyalty Price" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Loyalty Price</label>
+      <label><input type="checkbox" name="membershipInformation" id="priceIncreaseInfo" value="Loss of Loyalty Pricing" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Loss of Loyalty Pricing</label>
+      <label><input type="checkbox" name="membershipInformation" id="trainingOnline" value="Online Training" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Online Training</label>
+      </div>
+      <h4>SDLI</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="membershipInformation" id="attorneyChoice" value="Attorney Choice" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Attorney Choice</label>
+      <label><input type="checkbox" name="membershipInformation" id="bailBonds" value="Bail Bond Expenses" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Bail Bond Expenses</label>
+      <label><input type="checkbox" name="membershipInformation" id="concealedCarryLaws" value="Concealed Carry Laws" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Concealed Carry Laws</label>
+      <label><input type="checkbox" name="membershipInformation" id="conviction" value="Conviction" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Conviction</label>
+      <label><input type="checkbox" name="membershipInformation" id="defenseExpenses" value="Defense Expenses" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Defense Expenses</label>
+      <label><input type="checkbox" name="membershipInformation" id="expungement" value="Expungement" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Expungement</label>
+      <label><input type="checkbox" name="membershipInformation" id="coverageTerritory" value="Coverage Territory" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Coverage Territory</label>
+      <label><input type="checkbox" name="membershipInformation" id="incidentalExpenses" value="Incidental Expenses" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Incidental Expenses</label>
+      <label><input type="checkbox" name="membershipInformation" id="liability" value="Liability" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Liability</label>
+      <label><input type="checkbox" name="membershipInformation" id="memberStories" value="Member Stories" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Member Stories</label>
+      <label><input type="checkbox" name="membershipInformation" id="pleaDeals" value="Plea Deals" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Plea Deals</label>
+      <label><input type="checkbox" name="membershipInformation" id="redFlag" value="Red Flag Laws" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Red Flag Laws</label>
+      <label><input type="checkbox" name="membershipInformation" id="residentRelatives" value="Resident Relatives" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Resident Relatives</label>
+      <label><input type="checkbox" name="membershipInformation" id="wageReplacement" value="Wage Replacement" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Wage Replacement</label>
+      <label><input type="checkbox" name="membershipInformation" id="weaponsAllowed" value="Weapons Allowed" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Weapons Allowed</label>
+      </div>
+      </fieldset>
+      <!-- Store Questions -->
+      <fieldset id="storeIssue" data-group-for="storeQuestion, storeQuestionOrderNumber otherStoreQuestionText" data-group-value="Store Questions" hidden>
+      <h3>Store Questions</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="storeQuestion" id="cancelationOrder" value="Store Order Cancelation" data-show-note="noteStoreQuestions" onchange="handleInputChange(event)">Order Cancelation</label>
+      <label><input type="checkbox" name="storeQuestion" id="currentOrder" value="Questions about Current Store Order" data-show-note="noteStoreQuestions" onchange="handleInputChange(event)">Questions about Current Order</label>
+      <label><input type="checkbox" name="storeQuestion" id="productQuestions" value="Product Questions" data-show-note="noteStoreQuestions" onchange="handleInputChange(event)">Product Questions</label>
+      <label><input type="checkbox" name="storeQuestion" id="returnRefund" value="Store Order Return or Refund" data-show-note="noteStoreQuestions" onchange="handleInputChange(event)">Return or Refund</label>
+      <label><input type="checkbox" name="storeQuestion" id="otherStoreQuestion" value="Other Store Question" onchange="handleInputChange(event)">Other</label>
+      </div>      
+      <hr class="rounded">
+      <div class="text-input-container">
+      <input type="text" id="storeQuestionOrderNumber" name="storeQuestionOrderNumber" data-show-note="noteStoreQuestionOrderNumber" onchange="handleInputChange(event)">
+      <label for="storeQuestionOrderNumber" class="text-input-label">Order Number</label>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="otherStoreQuestionText" name="otherStoreQuestionText" data-show-note="noteOtherStoreQuestions" onchange="handleInputChange(event)">
+      <label for="otherStoreQuestionText" class="text-input-label">Other Store Question Details</label>
+
+      </fieldset>
+      <!-- Class Questions -->
+      <fieldset id="trainingInfo" data-group-for="classEvent" data-group-value="Class Questions" hidden>
+      <h3>What kind of training class?</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" id="class" name="classEvent" value="Class Questions" data-show-note="noteTrainingClass" onchange="handleInputChange(event)">Class Questions</label>
+      <label><input type="checkbox" id="event" name="classEvent" value="Event Questions" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">Event Questions</label>
+      </div>
+      </fieldset>
+      <fieldset class="eventInfo" data-group-for="eventName, eventAction" data-group-value="Event Information" hidden>
+      <h3>Event Information</h3>
+      <div class="text-input-container">
+      <input type="text" id="eventName" name="eventName" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">
+      <label for="eventName" class="text-input-label">Event Name</label>
+      </div>
+      <hr class="rounded">
+      <div class="two-columns">
+      <label><input type="checkbox" id="eventCanceled" name="eventAction" value="Canceled Event Registration" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">Canceled Event Registration</label>
+      <label><input type="checkbox" id="eventInfoRequest" name="eventAction" value="Event Information Request" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">Event Information Request</label>
+      </div>
+      </fieldset>
+      <!-- Instructor Questions -->
+      <fieldset id="instructor" data-group-for="instructorQuestions, otherInstructorQuestionText" data-group-value="Instructor Questions" hidden>
+      <h3>Questions by Instructor</h3>
+      <div  class="two-columns">
+      <label><input type="checkbox" name="instructorQuestions" id="becomingOfficialPartner" value="Becoming an Official Partner" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Becoming an Official Partner</label>
+      <label><input type="checkbox" name="instructorQuestions" id="certificationRenewal" value="Certification Renewal Questions" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Certification Renewal Questions</label>
+      <label><input type="checkbox" name="instructorQuestions" id="classUpdates" value="How to Update Class Info" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">How to Update Class Info</label>
+      <label><input type="checkbox" name="instructorQuestions" id="courseCreation" value="How to Create a Course" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">How to Create a Course</label>
+      <label><input type="checkbox" name="instructorQuestions" id="initialCertification" value="Initial Certification Questions" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Initial Certification Questions</label>
+      <label><input type="checkbox" name="instructorQuestions" id="instructorDashboard" value="Instructor Dashboard Usage Questions" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Instructor Dashboard Usage Questions</label>
+      <label><input type="checkbox" name="instructorQuestions" id="studentUpdates" value="Student Info Updates" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Student Info Updates</label>
+      <label><input type="checkbox" name="instructorQuestions" id="otherInstructorQuestion" value="Other Instructor-Related Questions" onchange="handleInputChange(event)">Other Instructor-Related Questions</label>
+      </div>
+      <input type="text" id="otherInstructorQuestionText" name="otherInstructorQuestionText" data-show-note="noteOtherInstructorQuestion" onchange="handleInputChange(event)">
+      <label for="otherInstructorQuestionText" class="text-input-label">Other Instructor Question Details</label>
+      </fieldset>
+      <!-- Transfers -->
+      <fieldset id="transfers" data-group-for="transfer, otherTransferText" data-group-value="Transfers" hidden>
+      <h3>Transfer to</h3>
+      <div class="two-columns">
+      <label><input type="radio" name="transfer" id="crt" value="CRT" data-show-note="noteTransfer" onchange="handleInputChange(event)">CRT</label>
+      <label><input type="radio" name="transfer" id="crtIncorrect" value="CRT Incorrect Use" data-show-note="noteTransfer" onchange="handleInputChange(event)">CRT Incorrect Use</label>
+      <label><input type="radio" name="transfer" id="partnerSupport" value="Partner Support" data-show-note="noteTransfer" onchange="handleInputChange(event)">Partner Support</label>
+      <label><input type="radio" name="transfer" id="deltaShield" value="Delta Shield" data-show-note="noteTransfer" onchange="handleInputChange(event)">Delta Shield</label>
+      <label><input type="radio" name="transfer" id="otherTransfer" value="Other" onchange="handleInputChange(event)">Other</label>
+      <label><input type="radio" name="transfer" id="mfe" value="MFE" data-show-note="noteTransfer" onchange="handleInputChange(event)">MFE</label>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="otherTransferText" name="otherTransferText">
+      <label for="otherTransferText" class="text-input-label">Other Transfer Details</label>
+      </fieldset>
+      <!-- Purchases -->
+      <fieldset id="purchase" data-group-for="purchases" data-group-value="Purchases" hidden>
+      <h3>What Kind of Purchase?</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" id="newMembershipInfo" name="purchases" value="New Membership" data-show-groups="newMembership" data-require-groups="newMembership" data-show-note="noteNewMembership, noteNewMembershipPayment" onchange="handleInputChange(event)">New Membership</label>
+      <label><input type="checkbox" id="spouseMembership" name="purchases" value="Spouse Membership Purchase" data-show-groups="newSpouseMembershipInfo" data-require-groups="newSpouseMembershipInfo" data-show-note="noteNewSpouseMembership, noteNewSpouseMembershipPayment" onchange="handleInputChange(event)">Spouse Membership</label>
+      <label><input type="checkbox" id="giftedMembership" name="purchases" value="Gifted Membership Purchase" data-show-groups="newGiftedMembershipInfo" data-require-groups="newGiftedMembershipInfo" data-show-note="noteNewGiftedMembership, noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">Gifted Membership Purchase</label>
+      <label><input type="checkbox" id="storeOrder" name="purchases" value="Store Order" data-show-groups="orderInfo" data-require-groups="orderInfo" data-show-note="noteStoreOrder" onchange="handleInputChange(event)">Store Order</label>
+      </div>
+      </fieldset>
+      <fieldset id="orderInfo" data-group-for="orderNum, orderAmount, orderItems, orderCouponsUsed" data-group-value="Store Order Information" hidden>
+      <h3>Store Order Information</h3>
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="text" id="orderNum" name="orderNum" data-show-note="noteStoreOrder" onchange="handleInputChange(event)">
+      <label for="orderNum" class="text-input-label">Order#</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="orderAmount" name="orderAmount" data-type="currency" inputmode="numeric" data-show-note="noteStoreOrder" onchange="handleInputChange(event)">
+      <label for="orderAmount" class="text-input-label">Amount</label>
+      </div>
+      </div>
+      <div class="text-input-container">
+      <textarea id="orderItems" name="orderItems" rows="3" cols="35" data-show-note="noteStoreOrder" onchange="handleInputChange(event)"></textarea>
+      <label for="orderItems" class="text-input-label">Items</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="orderCouponsUsed" name="orderCouponsUsed" data-show-note="noteStoreOrderCoupon" onchange="handleInputChange(event)">
+      <label for="orderCouponsUsed" class="text-input-label">Coupon Code(s) Used</label>
+      </div>
+      </fieldset>
+      <fieldset id="newMembership" data-group-for="newMemberLevel, newMemberPaymentPlan, newMemberRatePlan, newMemberDiscounted, newMemberBackground, newBackground, newMemberOtherBackgroundText, newMemberCardACH, newMemberOneTimePayment, newMemberAmount, newMemberLast4" data-group-value="New Membership Information" hidden>
+      <h3>New Membership Information</h3>
+      <div class="radio-group">
+      <label><input type="radio" id="newGold" name="newMemberLevel" value="Gold" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Gold</label>
+      <label><input type="radio" id="newPlatinum" name="newMemberLevel" value="Platinum" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Platinum</label>
+      <label><input type="radio" id="newElite" name="newMemberLevel" value="Elite" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Elite</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newMemberMonthly" name="newMemberPaymentPlan" value="Monthly" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Monthly</label>
+      <label><input type="radio" id="newMemberAnnual" name="newMemberPaymentPlan" value="Annual" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Annual</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newMemberLegacy" name="newMemberRatePlan" value="Legacy" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Legacy</label>
+      <label><input type="radio" id="newMemberLoyalty" name="newMemberRatePlan" value="Loyalty" data-show-note="noteNewMembership" onchange="handleInputChange(event)">Loyalty</label>
+      <label><input type="radio" id="newMember15" name="newMemberRatePlan" value="15.0" data-show-note="noteNewMembership" onchange="handleInputChange(event)">15.0</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newMemberDiscountNone" name="newMemberDiscounted" value="" data-show-note="noteNewMembership" onchange="handleInputChange(event)">None</label>
+      <label><input type="radio" id="newMemberDiscount10" name="newMemberDiscounted" value="10% Discount" data-show-note="noteNewMembership" onchange="handleInputChange(event)">10%</label>
+      <label><input type="radio" id="newMemberDiscount15" name="newMemberDiscounted" value="15% Discount" data-show-note="noteNewMembership" onchange="handleInputChange(event)">15%</label>
+      <label><input type="radio" id="newMemberDiscount20" name="newMemberDiscounted" value="20% Discount" data-show-note="noteNewMembership" onchange="handleInputChange(event)">20%</label>
+      </div>
+      </div>
+      <hr class="rounded">
+      <label><input type="checkbox" id="newMemberBackground" name="newMemberBackground">Background Discount</label>
+      <hr class="rounded">
+      <h3>Background Applied</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="newBackground" id="newMembermilitary" data-show-note="noteNewMembershipBackground" onchange="handleInputChange(event)">Military</label>
+      <label><input type="checkbox" name="newBackground" id="newMemberleo" data-show-note="noteNewMembershipBackground" onchange="handleInputChange(event)">LEO</label>
+      <label><input type="checkbox" name="newBackground" id="newMemberfirstResponder" data-show-note="noteNewMembershipBackground" onchange="handleInputChange(event)">First Responder</label>
+      <label><input type="checkbox" name="newBackground" id="newMemberother" data-show-note="noteNewMembershipBackground" onchange="handleInputChange(event)">Other</label>
+      <label><input type="checkbox" name="newBackground" id="newMemberseeSpouse" data-show-note="noteNewMembershipBackground" onchange="handleInputChange(event)">See Spouse</label>
+      </div>
+      </div>
+      <input type="text" id="newMemberOtherBackgroundText" name="newMemberOtherBackgroundText">
+      <label for="newMemberOtherBackgroundText" class="text-input-label" data-show-note="noteNewMemberOtherBackground" onchange="handleInputChange(event)">Other Background Details</label>
+      <div class="radio-group">
+        <hr class="rounded">
+      <label><input type="radio" id="achNewMember" name="newMemberCardACH" value="ACH" data-show-note="noteNewMembershipPayment" onchange="handleInputChange(event)">ACH Payment</label>
+      <label><input type="radio" id="cardNewMember" name="newMemberCardACH" value="Card" data-show-note="noteNewMembershipPayment" onchange="handleInputChange(event)">Card Payment</label>
+      </div>
+      <hr class="rounded">
+      <label><input type="checkbox" id="newMemberOneTimePayment" name="newMemberOneTimePayment" data-show-note="noteNewMembershipOneTimePayment" onchange="handleInputChange(event)">One Time Payment</label>
+      <hr class="rounded">
+      <div class="input-row" >  
+      <div class="text-input-container">
+      <input type="text" id="newMemberAmount" name="newMemberAmount" data-type="currency" inputmode="numeric" data-show-note="noteNewMembershipPayment" onchange="handleInputChange(event)">
+      <label for="newMemberAmount" class="text-input-label">Amount</label>
+      </div>
+      <div class="text-input-container" >
+      <input type="text" id="newMemberLast4" name="newMemberLast4" pattern="\d{4}" maxlength="4" data-show-note="noteNewMembershipPayment" onchange="handleInputChange(event)">
+      <label for="newMemberLast4" class="text-input-label">Last 4</label>
+      </div>
+      </div>
+      </fieldset>
+      <fieldset id="newSpouseMembershipInfo" data-group-for="newSpouseFullName, newSpouseMemberID, newSpouseMemberLevel, newSpousePaymentPlan, newSpouseRatePlan, newSpouseMemberCardACH, newSpouseMemberAmount, newSpouseMemberLast4" data-group-value="New Spouse Membership Information" hidden>
+      <h3>New Spouse Membership Information</h3>
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="text" id="newSpouseFullName" name="newSpouseFullName" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">
+      <label for="newSpouseFullName" class="text-input-label">Full Name</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="newSpouseMemberID" name="newSpouseMemberID" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">
+      <label for="newSpouseMemberID" class="text-input-label">ID#</label>
+      </div>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newSpouseGold" name="newSpouseMemberLevel" value="Spouse Gold" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Spouse Gold</label>
+      <label><input type="radio" id="newSpousePlatinum" name="newSpouseMemberLevel" value="Spouse Platinum" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Spouse Platinum</label>
+      <label><input type="radio" id="newSpouseElite" name="newSpouseMemberLevel" value="Spouse Elite" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Spouse Elite</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newSpouseMonthly" name="newSpousePaymentPlan" value="Monthly" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Monthly</label>
+      <label><input type="radio" id="newSpouseAnnual" name="newSpousePaymentPlan" value="Annual" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Annual</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newSpouseLegacy" name="newSpouseRatePlan" value="Legacy" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Legacy</label>
+      <label><input type="radio" id="newSpouseLoyalty" name="newSpouseRatePlan" value="Loyalty" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">Loyalty</label>
+      <label><input type="radio" id="newSpouse15" name="newSpouseRatePlan" value="15.0" data-show-note="noteNewSpouseMembership" onchange="handleInputChange(event)">15.0</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="achNewSpouseMember" name="newSpouseMemberCardACH" value="ACH" data-show-note="noteNewSpousePayment" onchange="handleInputChange(event)">ACH Payment</label>
+      <label><input type="radio" id="cardNewSpouseMember" name="newSpouseMemberCardACH" value="Card" data-show-note="noteNewSpousePayment" onchange="handleInputChange(event)">Card Payment</label>
+      </div>
+      <hr class="rounded">
+      <label><input type="checkbox" id="newSpouseMemberOneTimePayment" name="newSpouseMemberOneTimePayment" data-show-note="noteNewSpouseOneTimePayment" onchange="handleInputChange(event)">One Time Payment</label>
+      <hr class="rounded">
+      <div class="input-row" >
+      <div class="text-input-container">
+      <input type="text" id="newSpouseMemberAmount" name="newSpouseMemberAmount" data-type="currency" inputmode="numeric" data-show-note="noteNewSpousePayment" onchange="handleInputChange(event)">
+      <label for="newSpouseMemberAmount" class="text-input-label">Amount</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="newSpouseMemberLast4" name="newSpouseMemberLast4" pattern="\d{4}" maxlength="4" data-show-note="noteNewSpousePayment" onchange="handleInputChange(event)">
+      <label for="newSpouseMemberLast4" class="text-input-label">Last 4</label>
+      </div>
+      </div>
+      </fieldset>
+      <fieldset id="newGiftedMembershipInfo" data-group-for="newGiftedFullName, newGiftedMemberID, newGiftedMemberLevel, newGiftedPaymentPlan, newGiftedRatePlan, newGiftedDiscounted, newGiftedBackground, newGiftedOtherBackgroundText, newGiftedMemberCardACH, newGiftedMemberOneTimePayment, newGiftedMemberAmount, newGiftedMemberLast4" data-group-value="New Gifted Membership Information" hidden>
+      <h3>Gifted Account</h3>
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="text" id="newGiftedFullName" name="newGiftedFullName" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">
+      <label for="newGiftedFullName" class="text-input-label">Full Name</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="newGiftedMemberID" name="newGiftedMemberID" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">
+      <label for="newGiftedMemberID" class="text-input-label">ID#</label>
+      </div>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newGiftedGold" name="newGiftedMemberLevel" value="Gold" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Gold</label>
+      <label><input type="radio" id="newGiftedPlatinum" name="newGiftedMemberLevel" value="Platinum" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Platinum</label>
+      <label><input type="radio" id="newGiftedElite" name="newGiftedMemberLevel" value="Elite" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Elite</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newGiftedMonthly" name="newGiftedPaymentPlan" value="Monthly" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Monthly</label>
+      <label><input type="radio" id="newGiftedAnnual" name="newGiftedPaymentPlan" value="Annual" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Annual</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newGiftedLegacy" name="newGiftedRatePlan" value="Legacy" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Legacy</label>
+      <label><input type="radio" id="newGiftedLoyalty" name="newGiftedRatePlan" value="Loyalty" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">Loyalty</label>
+      <label><input type="radio" id="newGifted15" name="newGiftedRatePlan" value="15.0" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">15.0</label>
+      </div>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="newGiftedDiscountNone" name="newGiftedDiscounted" value="" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">None</label>
+      <label><input type="radio" id="newGiftedDiscount10" name="newGiftedDiscounted" value="10% Discount" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">10%</label>
+      <label><input type="radio" id="newGiftedDiscount15" name="newGiftedDiscounted" value="15% Discount" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">15%</label>
+      <label><input type="radio" id="newGiftedDiscount20" name="newGiftedDiscounted" value="20% Discount" data-show-note="noteNewGiftedMembership" onchange="handleInputChange(event)">20%</label>
+      </div>
+      <hr class="rounded">
+      <div class="newGiftedMemberBackgroundSelect">
+      <h3>Background Applied</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="newGiftedBackground" id="newGiftedMilitary" data-show-note="noteNewGiftedMembershipBackground" onchange="handleInputChange(event)">Military</label>
+      <label><input type="checkbox" name="newGiftedBackground" id="newGiftedLeo" data-show-note="noteNewGiftedMembershipBackground" onchange="handleInputChange(event)">LEO</label>
+      <label><input type="checkbox" name="newGiftedBackground" id="newGiftedFirstResponder" data-show-note="noteNewGiftedMembershipBackground" onchange="handleInputChange(event)">First Responder</label>
+      <label><input type="checkbox" name="newGiftedBackground" id="newGiftedOther" data-show-note="noteNewGiftedMembershipBackground" onchange="handleInputChange(event)">Other</label>
+      <label><input type="checkbox" name="newGiftedBackground" id="newGiftedSeeSpouse" data-show-note="noteNewGiftedMembershipBackground" onchange="handleInputChange(event)">See Spouse</label>
+      </div>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="newGiftedOtherBackgroundText" name="newGiftedOtherBackgroundText" data-show-note="noteNewGiftedMembershipBackground" onchange="handleInputChange(event)">
+      <label for="newGiftedOtherBackgroundText" class="text-input-label">Other Background Details</label>
+      <hr class="rounded">
+      <div class="radio-group">
+      <label><input type="radio" id="achNewGiftedMember" name="newGiftedMemberCardACH" value="ACH" data-show-note="noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">ACH Payment</label>
+      <label><input type="radio" id="cardNewGiftedMember" name="newGiftedMemberCardACH" value="Card" data-show-note="noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">Card Payment</label>
+      </div>
+      <hr class="rounded">
+      <label><input type="checkbox" id="newGiftedMemberOneTimePayment" name="newGiftedMemberOneTimePayment" data-show-note="noteNewGiftedMembershipOneTimePayment" onchange="handleInputChange(event)">One Time Payment</label>
+      <hr class="rounded">
+      <div class="input-row">
+      <div class="text-input-container">
+      <input type="text" id="newGiftedMemberAmount" name="newGiftedMemberAmount" data-type="currency" inputmode="numeric" data-show-note="noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">
+      <label for="newGiftedMemberAmount" class="text-input-label">Amount</label>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="newGiftedMemberLast4" name="newGiftedMemberLast4" pattern="\d{4}" maxlength="4" data-show-note="noteNewGiftedMembershipPayment" onchange="handleInputChange(event)">
+      <label for="newGiftedMemberLast4" class="text-input-label">Last 4</label>
+      </div>
+      </div>
+      <div class="text-input-container">
+      <input type="text" id="newGiftedRAFCouponCode" name="newGiftedRAFCouponCode" data-show-note="noteNewGiftedMembershipRAF" onchange="handleInputChange(event)">
+      <label for="newGiftedRAFCouponCode" class="text-input-label">RAF Code</label>
+      </div>
+      </div>
+      </fieldset>
+      <fieldset id="stateRegulatedState" data-group-for="stateRegulatedState" data-group-value="State Regulated State" hidden>
+      <h3>State Regulated State</h3>
+      <div class="radio-group">
+      <label><input type="radio" name="stateRegulatedState" id="newYork" value="New York" data-show-note="noteStateRegulated" onchange="handleInputChange(event)">New York</label>
+      <label><input type="radio" name="stateRegulatedState" id="newJersey" value="New Jersey" data-show-note="noteStateRegulated" onchange="handleInputChange(event)">New Jersey</label>
+      <label><input type="radio" name="stateRegulatedState" id="washington" value="Washington" data-show-note="noteStateRegulated" onchange="handleInputChange(event)">Washington</label>
+      </div>
+      </fieldset>
+      <fieldset id="groupContactInformation" data-group-for="groupMembershipTopic, otherGroupMembershipTopicText" data-group-value="Group Contact Information" hidden>
+        <h3>Group Membership Topic</h3>
+        <div class="two-columns">
+        <label><input type="checkbox" name="groupMembershipTopic" id="groupCancelRequest" value="Cancelation Request with Group Membership" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Cancelation Request</label>
+        <label><input type="checkbox" name="groupMembershipTopic" id="restrictedByGroupMembership" value="Account update unable to be processed due to active Group Membership" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Restricted Update Request</label>
+        <label><input type="checkbox" name="groupMembershipTopic" id="groupMembershipInfo" value="Group Membership Information Request" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Information Request</label>
+        <label><input type="checkbox" name="groupMembershipTopic" id="startGroupMembership" value="Start Group Membership" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Start Group Membership</label>
+        <label><input type="checkbox" name="groupMembershipTopic" id="otherGroupMembershipTopic" value="Other" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Other</label>
+        </div>
+        <hr class="rounded">
+        <input type="text" id="otherGroupMembershipTopicText" name="otherGroupMembershipTopicText" data-show-note="noteGroupMembershipOtherQuestion" onchange="handleInputChange(event)">
+        <label for="otherGroupMembershipTopicText" class="text-input-label">Other Topic or New Group Membership Business Name</label>
+      </fieldset>
+      <!-- Emails, FDTs, FFs, WOWs selector -->
+      <fieldset id="sentSubmittedSection" data-group-for="sentSubmitted" data-group-value="Sent or Submitted Items" hidden>
+      <h3>What items were sent or submitted?</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="sentSubmitted" id="emailsSubmitted" value="Emails Sent" data-show-groups="emails" data-require-groups="emails" onchange="handleInputChange(event)">Emails Sent</label>
+      <label><input type="checkbox" name="sentSubmitted" id="fdtsSubmitted" value="FDTs Submitted" data-show-groups="FDT1, FDT2" data-require-groups="FDT1" onchange="handleInputChange(event)">FDTs Submitted</label>
+      <label><input type="checkbox" name="sentSubmitted" id="ffSubmitted" value="FFs Submitted" data-show-groups="ffs" data-require-groups="ffs" onchange="handleInputChange(event)">FFs Submitted</label>
+      <label><input type="checkbox" name="sentSubmitted" id="wows" value="WOW Items Sent" data-show-groups="wowItems" data-require-groups="wowItems" onchange="handleInputChange(event)">WOW Items Sent</label>
+      </div>
+      </fieldset>
+      <!-- WOW items sent -->
+      <fieldset id="wowItems" data-group-for="wow, otherWowText" data-group-value="WOW Items Sent" hidden>
+      <h3>What WOW items were sent?</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="wow" id="ammoCan" value="Ammo Can" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">Ammo Can</label>
+      <label><input type="checkbox" name="wow" id="ccm" value="CCM Issue" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">CCM Issue</label>
+      <label><input type="checkbox" name="wow" id="decal" value="Decal" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">Decal</label>
+      <label><input type="checkbox" name="wow" id="hat" value="Hat" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">Hat</label>
+      <label><input type="checkbox" name="wow" id="idCard" value="ID Card" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">ID Card</label>
+      <label><input type="checkbox" name="wow" id="sticker" value="Sticker" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">Sticker</label>
+      <label><input type="checkbox" name="wow" id="tShirt" value="T-Shirt" data-show-note="noteWOWsSent" onchange="handleInputChange(event)">T-Shirt</label>
+      <label><input type="checkbox" name="wow" id="otherWow" value="Other" onchange="handleInputChange(event)">Other</label>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="otherWowText" name="otherWowText" data-show-note="noteOtherWOWText" onchange="handleInputChange(event)">
+      <label for="otherWowText" class="text-input-label">Other WOW Item Details</label>
+      </fieldset>
+      <!-- FFs sent -->
+      <fieldset id="ffs" data-group-for="ff, otherFFText" data-group-value="FFs Submitted" hidden>
+      <h3>What FFs were submitted?</h3>
+      <h4>Salesforce</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="ff" id="billingInquiry" value="Billing Inquiry" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Billing Inquiry</label>
+      <label><input type="checkbox" name="ff" id="checkRefund" value="Check Refund" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Check Refund</label>
+      <label><input type="checkbox" name="ff" id="clearBalance" value="Clear Balance" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Clear Balance</label>
+      <label><input type="checkbox" name="ff" id="dcPOA" value="DC/POA" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">DC/POA</label>
+      <label><input type="checkbox" name="ff" id="legacyChange" value="Legacy Account Change" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Legacy Account Change</label>
+      <label><input type="checkbox" name="ff" id="removePayment" value="Remove Payment Method" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Remove Payment Method</label>
+      </div>
+      <h4>Partner Support</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="ff" id="eventQuestions" value="Event Feedback" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Event Feedback</label>
+      <label><input type="checkbox" name="ff" id="instructorQuestions" value="Instructor Feedback" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Instructor Feedback</label>
+      <label><input type="checkbox" name="ff" id="instructorSupport" value="Instructor Support" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Instructor Support</label>
+      <label><input type="checkbox" name="ff" id="partnerSupport" value="Partner Support" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Partner Support</label>
+      </div>
+      <h4>Technical Issues</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="ff" id="emailIssues" value="Email Issues" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Email Issues</label>
+      <label><input type="checkbox" name="ff" id="general" value="General Issues" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">General Issues</label>
+      <label><input type="checkbox" name="ff" id="webAppIssues" value="Website/App Issues" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Website/App Issues</label>
+      </div>
+      <h4>Fulfillment</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="ff" id="addressUpdate" value="Store Order Address Update" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Store Order Address Update</label>
+      <label><input type="checkbox" name="ff" id="orderCancel" value="Order Cancelation" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Order Cancelation</label>
+      <label><input type="checkbox" name="ff" id="promoAdjustment" value="Promo Adjustment" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Promo Adjustment</label>
+      <label><input type="checkbox" name="ff" id="tracking" value="Tracking Info Request" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Tracking Info Request</label>
+      <label><input type="checkbox" name="ff" id="itemRetResend" value="Item Return/Resend" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Item Return/Resend</label>
+      </div>
+      <h4>Other</h4>
+      <div class="two-columns">
+      <label><input type="checkbox" name="ff" id="stolenFirearm" value="Stolen Firearm Report" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Stolen Firearm Report</label>
+      <label><input type="checkbox" name="ff" id="otherFF" value="Other" data-show-note="noteFFsSubmitted" onchange="handleInputChange(event)">Other</label>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="otherFFText" name="otherFFText" data-show-note="noteOtherFF" onchange="handleInputChange(event)">
+      <label for="otherFFText" class="text-input-label">Other FF Details</label>  
+      <hr class="rounded">
+      <div class="text-input-container">
+      <textarea id="ffInfo" name="ffInfo" rows="3" cols="35" data-show-note="noteFFInfo" onchange="handleInputChange(event)"></textarea>
+      <label for="ffInfo" class="text-input-label">Info on FF</label>
+      </div>
+      </fieldset>
+      <!-- FDTs submitted -->
+      <fieldset id="FDT1" data-group-for="fdt1Date,fdt1Action" data-group-value="FDTs Submitted" hidden>
+      <input type="date" id="fdt1Date" name="fdt1Date" data-show-note="noteFF1" onchange="handleInputChange(event)">
+      <label for="fdt1Date" class="text-input-label">First FDT Date</label>
+      <div class="text-input-container">
+      <textarea id="fdt1Action" name="fdt1Action" rows="3" cols="35" data-show-note="noteFF1" onchange="handleInputChange(event)"></textarea>
+      <label for="fdt1Action" class="text-input-label">Action taken</label>
+      </div>
+      </fieldset>
+      <fieldset id="FDT2" data-group-for="fdt2Date,fdt2Action" data-group-value="FDTs Submitted" hidden>
+      <input type="date" id="fdt2Date" name="fdt2Date" data-show-note="noteFF2" onchange="handleInputChange(event)">
+      <label for="fdt2Date" class="text-input-label">First FDT Date</label>
+      <div class="text-input-container">
+      <textarea id="fdt2Action" name="fdt2Action" rows="3" cols="35" data-show-note="noteFF2" onchange="handleInputChange(event)"></textarea>
+      <label for="fdt2Action" class="text-input-label">Action taken</label>
+      </div>
+      </fieldset>
+      <!-- Emails sent -->
+      <fieldset id="emails" data-group-for="emailsSent" data-group-value="Emails Sent" hidden>
+      <h3>What emails were sent?</h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="emailsSent" id="couponCode" value="Coupon Codes" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Coupon Codes</label>
+      <label><input type="checkbox" name="emailsSent" id="guides" value="Guides" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Guides</label>
+      <label><input type="checkbox" name="emailsSent" id="membershipInfo" value="Membership Benefits" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Membership Benefits</label>
+      <label><input type="checkbox" name="emailsSent" id="missedYou" value="Sorry We Missed You" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Sorry We Missed You</label>
+      <label><input type="checkbox" name="emailsSent" id="newMemberKit" value="New Member Kit Guides" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">New Member Kit Guides</label>
+      <label><input type="checkbox" name="emailsSent" id="passwordReset" value="Password Reset" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Password Reset</label>
+      <label><input type="checkbox" name="emailsSent" id="paymentArrangement" value="Payment Arrangement" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Payment Arrangement</label>
+      <label><input type="checkbox" name="emailsSent" id="paymentConfirmation" value="Payment Confirmation" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Payment Confirmation</label>
+      <label><input type="checkbox" name="emailsSent" id="pendingCancel" value="Pending Cancelation" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Pending Cancelation</label>
+      <label><input type="checkbox" name="emailsSent" id="pendingDown" value="Pending Downgrade" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Pending Downgrade</label>
+      <label><input type="checkbox" name="emailsSent" id="refundConfirmation" value="Refund Confirmation" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Refund Confirmation</label>
+      <label><input type="checkbox" name="emailsSent" id="reciprocityInfo" value="Reciprocity Information" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Reciprocity Information</label>
+      <label><input type="checkbox" name="emailsSent" id="sdliInfo" value="SDLI Summary" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">SDLI Summary</label>
+      <label><input type="checkbox" name="emailsSent" id="instructorInfoEmail" value="Instructor Information" data-show-note="noteEmailsSent" onchange="handleInputChange(event)">Instructor Information</label>
+      <label><input type="checkbox" name="emailsSent" id="otherEmailSent" value="Other Email" onchange="handleInputChange(event)">Other Email</label>
+      </div>
+      <hr class="rounded">
+      <input type="text" id="otherEmailSentText" name="otherEmailSentText" data-show-note="noteOtherEmailSent" onchange="handleInputChange(event)">
+      <label for="otherEmailSentText" class="text-input-label">Other Email Details</label>
+      </fieldset>
+      <!-- End-of-call checks -->
+      <fieldset id="spouseAsk" data-group-for="spouseAsk" data-group-value="Spouse Ask" hidden>
+      <h3>Spouse Ask </h3>
+      <div class="two-columns">
+      <label><input type="checkbox" name="spouseAsk" id="addedToday" value="Added during current contact" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Added during current contact</label>
+      <label><input type="checkbox" name="spouseAsk" id="alreadyActive" value="Already Active" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Already Active</label>
+      <label><input type="checkbox" name="spouseAsk" id="doesNotCarry" value="Does not carry" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Does not carry</label>
+      <label><input type="checkbox" name="spouseAsk" id="doesNotWant" value="Does not want" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Does not want</label>
+      <label><input type="checkbox" name="spouseAsk" id="maybeLater" value="Maybe later" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Maybe later</label>
+      <label><input type="checkbox" name="spouseAsk" id="noSpouse" value="No Spouse" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">No Spouse</label>
+      <label><input type="checkbox" name="spouseAsk" id="willTalk" value="Will talk to them" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Will talk to them</label>
+      <label><input type="checkbox" name="spouseAsk" id="notAsked" value="Did not ask" data-show-note="noteSpouseAsk" onchange="handleInputChange(event)">Did not ask</label>
+      </div>
+      </fieldset>
+      <fieldset id="raf" data-group-for="raf" data-group-value="RAF" hidden>
+      <h3>RAF</h3>
+      <div class="radio-group">
+      <label><input type="radio" id="rafY" name="raf" value="Yes" data-show-note="noteRaf" onchange="handleInputChange(event)">Yes</label>
+      <label><input type="radio" id="rafN" name="raf" value="No" data-show-note="noteRaf" onchange="handleInputChange(event)">No</label>
+      <label><input type="radio" id="rafSOP" name="raf" value="Yes-per SOP" data-show-note="noteRaf" onchange="handleInputChange(event)">Yes-per SOP</label>
+      </div>
+      </fieldset>
+      <!-- Reciprocity/Gun Laws -->
+      <fieldset id="reciprocityInformation" data-group-for="reciprocityNotes" data-group-value="Reciprocity Information Reviewed" hidden>
+      <h3>Reciprocity Information Reviewed</h3>
+      <div class="text-input-container">
+      <textarea id="reciprocityNotes" name="reciprocityNotes" rows="3" cols="35" autocorrect="on" spellcheck="true" data-show-note="noteReciprocityQuestions" onchange="handleInputChange(event)"></textarea>
+      <label for="reciprocityNotes" class="text-input-label">Notes</label>
+      </div>
+      </fieldset>
+      <fieldset id="notesText" data-group-for="notes" data-group-value="Additional Notes" hidden>
+      <h3>Additional Notes</h3>
+      <div class="text-input-container">
+      <textarea id="notes" name="notes" rows="3" cols="35" autocorrect="on" spellcheck="true" data-show-note="noteNotesText" onchange="handleInputChange(event)"></textarea>
+      <label for="notes" class="text-input-label">Notes</label>
+      </div>
+      </fieldset>
+      <fieldset id="einsteinText" data-group-for="einstein" hidden>
+      <h3>Einstein Notes</h3>
+      <div class="text-input-container">
+      <textarea id="einstein" name="einstein" rows="3" cols="35" autocorrect="on" spellcheck="true" data-show-note="noteEinstein" onchange="handleInputChange(event)"></textarea>
+      <label for="einstein" class="text-input-label">Notes</label>
+      </div>
+      </fieldset>
+      <!-- Form Submission Buttons -->
+       <fieldset id="dispoNotes">
+      <div id="dispositionNote">
+        <h3>Disposition Note</h3>
+        <p id="noteMemberInfo" hidden data-note-template="{fullName} - {memberID}"></p>
+        <p id="noteSpouseInfo" hidden data-note-template="Spouse: {fullNameSpouse} - {memberIDSpouse}"></p>
+        <p id="noteLead" hidden data-note-template="Lead"></p>
+        <p id="noteOtherReasonCalled" hidden data-note-template="{otherReasonCalled}"></p>
+        <p id="noteStateRegulated" hidden data-note-template="State Regulated State: {stateRegulatedState}"></p>
+        <p id="notePurchases" hidden data-note-template="{list:purchases}"></p>
+        <p id="noteNewMembership" hidden data-note-template="Started New {newMemberLevel} {newMemberRatePlan} - {newMemberPaymentPlan} {newMemberDiscounted} Membership"></p>
+        <p id="noteNewMembershipBackground" hidden data-note-template="with {newMemberBackground} Background"></p>
+        <p id="noteNewMemberOtherBackground" hidden data-note-template="with {newMemberOtherBackgroundText}"></p>
+        <p id="noteNewMembershipPayment" hidden data-note-template="Processed ${newMemberAmount} to {newMemberCardACH} {newMemberLast4}"></p>
+        <p id="noteNewMembershipOneTimePayment" hidden data-note-template="{newMemberOneTimePayment}"></p>
+        <p id="noteNewSpouseMembership" hidden data-note-template="Started Spouse {newSpouseMemberLevel} {newSpouseRatePlan} - {newSpousePaymentPlan} Membership: {newSpouseFullName} - {newSpouseMemberID}"></p>
+        <p id="noteNewSpousePayment" hidden data-note-template="Processed ${newSpouseMemberAmount} to {newSpouseMemberCardACH} {newSpouseMemberLast4}"></p>
+        <p id="noteNewSpouseOneTimePayment" hidden data-note-template="{newSpouseMemberOneTimePayment}"></p>
+        <p id="noteNewGiftedMembership" hidden data-note-template="Started Gifted {newGiftedMemberLevel} {newGiftedRatePlan} - {newGiftedPaymentPlan} {newGiftedDiscounted} Membership: {newGiftedFullName} - {newGiftedMemberID}"></p>
+        <p id="noteNewGiftedMembershipBackground" hidden data-note-template="with {newGiftedMemberBackground} {newGiftedOtherBackgroundText} Background"></p>
+        <p id="noteNewGiftedMembershipPayment" hidden data-note-template="Processed ${newGiftedMemberAmount} to {newGiftedMemberCardACH} {newGiftedMemberLast4}"></p>
+        <p id="noteNewGiftedOneTimePayment" hidden data-note-template="{newGiftedMemberOneTimePayment}"></p>
+        <p id="noteNewGiftedMembershipOneTimePayment" hidden data-note-template="{newGiftedMemberOneTimePayment}"></p>
+        <p id="noteNewGiftedMembershipRAF" hidden data-note-template="RAF Code: {newGiftedRAFCouponCode}"></p>
+        <p id="noteStoreOrder" hidden data-note-template="${orderAmount} processed to Store Order - {orderNum}: {orderItems}"></p>
+        <p id="noteStoreOrderCoupon" hidden data-note-template=" with Coupon Code: {orderCouponsUsed}"></p>
+        <p id="noteCanRequest" hidden data-note-template="{canRequest}"></p>
+        <p id="notePostCanInquiry" hidden data-note-template="{postCancelationInquiry}"></p>
+        <p id="noteSuspicious" hidden data-note-template="{suspicous}"></p>
+        <p id="noteTechnicalIssues" hidden data-note-template="{technicalIssues}"></p>
+        <p id="noteComplaint" hidden data-note-template="{complaint}"></p>
+        <p id="noteGADentry" hidden data-note-template="{GADentry}"></p>
+        <p id="noteGADquestion" hidden data-note-template="{GADquestion}"></p>
+        <p id="noteCancelation" hidden data-note-template="Cancelation due to {list:cancelationReason}"></p>
+        <p id="noteCompetitor" hidden data-note-template="Competitor: {list:competitors}"></p>
+        <p id="noteOtherCompetitor" hidden data-note-template="Competitor: {otherCompetitorText}"></p>
+        <p id="noteSaved" hidden data-note-template="SAVE: {list:reasonSave}"></p>
+        <p id="noteOtherSave" hidden data-note-template="Other Save Reason: {otherSaveText}"></p>
+        <p id="noteCanEffective" hidden data-note-template="Effective Date: {canEffectiveDate}"></p>
+        <p id="noteBillingQuestions" hidden data-note-template="{paymentQuestions}"></p>
+        <p id="noteUpdatePaymentInfo" hidden data-note-template="{updatePayment}"></p>
+        <p id="notePaymentArrangement" hidden data-note-template="{list:paymentArrangementSelect}"></p>
+        <p id="noteWaivePayment" hidden data-note-template="Waived Payment Date: {waivePaymentDate}"></p>
+        <p id="noteDueDateChange" hidden data-note-template="Changed due date from {oldDueDate} to {newDueDate}"></p>
+        <p id="noteReasonRenewOff" hidden data-note-template="Auto-Renew turned off due to: {list: reasonAutoRenewOff}"></p>
+        <p id="noteOtherReasonRenewOff" hidden data-note-template="Other Auto-Renew Off Reason: {otherAutoRenewOffReasonText}"></p>
+        <p id="noteMemberPaymentPlanChange" hidden data-note-template="Change Member from {paymentPlanMember} Effective {memberPaymentPlanEffective}"></p>
+        <p id="noteSpousePaymentPlanChange" hidden data-note-template="Change Spouse from {paymentPlanSpouse} Effective {spousePaymentPlanEffective}"></p>
+        <p id="noteMemberDowngrade" hidden data-note-template="Downgrade from {startLevelMemberDowngrade} {memberStartDownRate} - {memberStartDownPaymentPlan} {memberStartDownDiscounted} to {finishLevelMemberDowngrade} {memberFinishDownRatePlan} - {memberFinishDownPaymentPlan} {memberFinishDownDiscounted} Effective {memberDownEffective}"></p>
+        <p id="noteSpouseDowngrade" hidden data-note-template="Downgrade Spouse from {startLevelSpouseDowngrade} {spouseStartDownRate} - {spouseStartDownPaymentPlan} to {finishLevelSpouseDowngrade} {spouseFinishDownRate} - {spouseFinishDownPaymentPlan} Effective {spouseDowngradeEffective}"></p>
+        <p id="noteMemberUpgrade" hidden data-note-template="Upgrade from {startLevelMemberUpgrade} {memberStartUpRate} - {memberStartUpPaymentPlan} {memberUpgradeDiscounted} to {finishLevelMemberUpgrade} {memberUpgradeRatePlan} - {memberFinishUpPaymentPlan} {memberFinishUpgradeDiscounted} Effective {memberUpgradeEffective}"></p>
+        <p id="noteSpouseUpgrade" hidden data-note-template="Upgrade Spouse from {startLevelSpouseUpgrade} {spouseStartUpRate} - {spouseStartUpPaymentPlan} to {finishLevelSpouseUpgrade} {spouseFinishUpRate} - {spouseUpgradePaymentPlan} Effective {spouseUpgradeEffective}"></p>
+        <p id="notePaymentDue" hidden data-note-template="{paymentDue}"></p>
+        <p id="noteMemberPayment" hidden data-note-template="Processed ${memberAmount} to {memberlast4} {achCard}"></p>
+        <p id="noteMemberOneTimePayment" hidden data-note-template="{memberOneTimePayment}"></p>
+        <p id="noteGiftedPayment" hidden data-note-template="Processed ${memberGiftedAmount} to {memberGiftedLast4} {achCardGifted} for Gifted account {giftedFullName} - {giftedMemberID}"></p>
+        <p id="noteGiftedOneTimePayment" hidden data-note-template="{memberOneTimeGiftedPayment}"></p>
+        <p id="noteRefund" hidden data-note-template="Refunded ${memberRefundAmount} to {memberRefundLast4} {achCardRefund}"></p>
+        <p id="noteAddressUpdate" hidden data-note-template="Updated Address"></p>
+        <p id="noteAttorneyUpdate" hidden data-note-template="Updated {list:spouseMemberAttorney} Attorney"></p>
+        <p id="noteBackgroundUpdate" hidden data-note-template="Updated Background: {list:backgroundSelect}"></p>
+        <p id="noteOtherMemberBackground" hidden data-note-template="Other Background: {primaryOtherBackground}"></p>
+        <p id="noteOtherSpouseBackground" hidden data-note-template="Other Spouse Background: {spouseOtherBackground}"></p>
+        <p id="noteDiscountApplied" hidden data-note-template="{discountAdded}"></p>
+        <p id="noteEmailUpdate" hidden data-note-template="Updated {list:spouseMemberEmail} Email"></p>
+        <p id="noteEmergencyUpdate" hidden data-note-template="Updated {list:spouseMemberEmergency} Emergency Contact"></p>
+        <p id="noteNameUpdate" hidden data-note-template="Updated {list:spouseMemberName} Name"></p>
+        <p id="notePhoneUpdate" hidden data-note-template="Updated {list:spouseMemberPhone} Phone"></p>
+        <p id="notePromoQuestions" hidden data-note-template="Membership Promo: {list:promo}"></p>
+        <p id="notePromoQuestionsAddressed" hidden data-note-template="Promos Questions: {promoQuestionsAddressed}"></p>
+        <p id="notePromoItems" hidden data-note-template="Promo Items: {promoItems}"></p>
+        <p id="noteLinkReferral" hidden data-note-template="Linked Referral"></p>
+        <p id="noteProvideCouponCode" hidden data-show-note="Provide {couponType} Coupon Code - {couponCodeGiven}"></p>
+        <p id="noteGroupMembershipQuestions" hidden data-note-template="Group Memberships: {list:groupMembershipTopic}"></p>
+        <p id="noteGroupMembershipOtherQuestion" hidden data-note-template="Additional Group Questions/Info: {otherGroupMembershipTopicText}"></p>
+        <p id="noteStoreQuestions" hidden data-note-template="Store: {list:storeQuestion}"></p>
+        <p id="noteStoreQuestionOrderNumber" hidden data-note-template="Store Questions re: Order {storeQuestionOrderNumber}"></p>
+        <p id="noteOtherStoreQuestions" hidden data-note-template="Other Store Questions: {otherStoreQuestionsText}"></p>
+        <p id="noteOutboundNoVM" hidden data-note-template="Outbound - No Voicemail Available"></p>
+        <p id="noteOutboundVM" hidden data-note-template="Outbound - Left Voicemail"></p>
+        <p id="noteTrainingClass" hidden data-note-template="In-Person training class questions"></p>
+        <p id="noteEventQuestions" hidden data-note-template="{eventName} Event: {list:eventAction}"></p>
+        <p id="noteInstructorQuestions" hidden data-note-template="Instructor: {list:instructorQuestions}"></p>
+        <p id="noteOtherInstructorQuestion" hidden data-note-template="Other Instructor Question: {otherInstructorQuestionText}"></p>
+        <p id="noteBenefitsReviewed" hidden data-note-template="Benefits Reviewed: {list:membershipInformation}"></p>
+        <p id="noteTransfer" hidden data-note-template="Transfer: {transfer}"></p>
+        <p id="noteOtherTransfer" hidden data-note-template="Transfer: {otherTransferText}"></p>
+        <p id="noteWOWsSent" hidden data-note-template="WOW'd': {list:wow}"></p>
+        <p id="noteOtherWOWText" hidden data-note-template="Other WOWs: {otherWowText}"></p>
+        <p id="noteFFsSubmitted" hidden data-note-template="FFs: {list:ff}"></p>
+        <p id="noteOtherFF" hidden data-note-template="FF Info: {otherFFText}"></p>
+        <p id="noteFFInfo" hidden data-note-template="FF Details: {ffInfo}"></p>
+        <p id="noteFF1" hidden data-note-template="FDT1 - {fdt1Date}: {fdt1Action}"></p>
+        <p id="noteFF2" hidden data-note-template="FDT2 - {fdt2Date}: {fdt2Action}"></p>
+        <p id="noteEmailsSent" hidden data-note-template="Emails Sent: {list:emailsSent}"></p>
+        <p id="noteOtherEmailSentText" hidden data-note-template="Other Email Sent: {otherEmailSentText}"></p>
+        <p id="noteSpouseAsk" hidden data-note-template="Spouse Ask: {list:spouseAsk}"></p>
+        <p id="noteRAF" hidden data-note-template="RAF: {raf}"></p>
+        <p id="noteReciprocityQuestions" hidden data-note-template="Gun Laws & Reciprocity: {reciprocityNotes}"></p>
+        <p id="noteNotesText" hidden data-note-template="Notes: {notes}"></p>
+        <p id="noteEinstein" hidden data-note-template="{einstein}"></p>
+      </div>
+      <div class="button-container">
+      <button type="button" id="submitForm">Clear Form</button>
+      </div>
+      </fieldset>
+    </form>
+    <script>
+      // Helper: split comma-separated data attribute values robustly
+      function splitDataList(str) {
+        if (!str || typeof str !== 'string') return [];
+        return str.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      function handleInputChange(event) {
+        const selectedInput = event.target;
+        const inputType = selectedInput.type;
+        const isCurrentlyChecked = selectedInput.checked;
+        const inputValue = selectedInput.value;
+        const inputName = selectedInput.name;
+
+        if (inputType === 'checkbox') {
+          if (isCurrentlyChecked) {
+            console.log(`Checkbox with name "${inputName}" and value "${inputValue}" has been selected.`);
+            const targetElement = document.getElementById(''); // This would come from data-target attribute
+          } else {
+            console.log(`Checkbox with name "${inputName}" and value "${inputValue}" has been deselected.`);
+          }
+        } else if (inputType === 'radio') {
+          console.log(`Radio button with name "${inputName}" and value "${inputValue}" has been selected.`);
+        }
+
+        // Handle interrelations based on data attributes
+        const requiresGroup = selectedInput.dataset.requireGroup;
+        const requiresGroups = selectedInput.dataset.requireGroups;
+        const unrequireGroup = selectedInput.dataset.unrequireGroup;
+        const unrequireGroups = selectedInput.dataset.unrequireGroups;
+        const hidesGroups = selectedInput.dataset.hideGroups;
+        const showGroup = selectedInput.dataset.showGroup;
+        const showGroups = selectedInput.dataset.showGroups;
+
+        // Collect groups to require
+        const groupsToRequire = [];
+        if (requiresGroup) {
+          groupsToRequire.push(requiresGroup);
+        }
+        if (requiresGroups) {
+          groupsToRequire.push(...splitDataList(requiresGroups));
+        }
+
+        // Collect groups to unrequire
+        const groupsToUnrequire = [];
+        if (unrequireGroup) {
+          groupsToUnrequire.push(unrequireGroup);
+        }
+        if (unrequireGroups) {
+          groupsToUnrequire.push(...splitDataList(unrequireGroups));
+        }
+
+        // Collect groups to show
+        const groupsToShow = [];
+        if (showGroup) {
+          groupsToShow.push(showGroup);
+        }
+        if (showGroups) {
+          groupsToShow.push(...splitDataList(showGroups));
+        }
+
+        if (inputType === 'checkbox' && isCurrentlyChecked || inputType === 'radio') {
+          groupsToShow.forEach(function(groupId) {
+          var gid = groupId.trim();
+            if (document.getElementById(gid)) {
+              document.getElementById(gid).removeAttribute('hidden');
+              // Show links for this group
+              Array.from(document.querySelectorAll('a[data-target="' + gid + '"]')).forEach(function(link) { link.style.display = 'block'; });
+            }
+          });
+          groupsToRequire.forEach(function(groupId) {
+            var gid = groupId.trim();
+            if (document.getElementById(gid)) {
+              document.getElementById(gid).removeAttribute('hidden');
+              // Set required on all inputs in the group
+              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.setAttribute('required', ''); });
+              // Add required indicator if not present
+              var indicator = document.getElementById(gid).querySelector('.required-indicator');
+              if (!indicator) {
+                indicator = document.createElement('p');
+                indicator.textContent = '*required';
+                indicator.style.fontStyle = 'italic';
+                indicator.style.color = 'red';
+                indicator.className = 'required-indicator';
+                document.getElementById(gid).insertBefore(indicator, document.getElementById(gid).firstChild);
+              }
+            }
+          });
+          groupsToUnrequire.forEach(function(groupId) {
+            var gid = groupId.trim();
+            if (document.getElementById(gid)) {
+              // Remove required from all inputs in the group
+              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
+              // Remove required indicator
+              var indicator = document.getElementById(gid).querySelector('.required-indicator');
+              if (indicator) { indicator.remove(); }
+            }
+          });
+        } else if (inputType === 'checkbox' && !isCurrentlyChecked) {
+          // Optionally hide on deselect
+          groupsToShow.forEach(function(groupId) {
+          var gid = groupId.trim();
+            if (document.getElementById(gid)) {
+              document.getElementById(gid).setAttribute('hidden', '');
+              // Hide links for this group
+              Array.from(document.querySelectorAll('a[data-target="' + gid + '"]')).forEach(function(link) { link.style.display = 'none'; });
+            }
+          });
+          groupsToRequire.forEach(function(groupId) {
+            var gid = groupId.trim();
+            if (document.getElementById(gid)) {
+              document.getElementById(gid).setAttribute('hidden', '');
+              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
+              // Remove required indicator
+              var indicator = document.getElementById(gid).querySelector('.required-indicator');
+              if (indicator) { indicator.remove(); }
+            }
+          });
+          // Optionally re-require on deselect for unrequire groups
+          groupsToUnrequire.forEach(function(groupId) {
+            var gid = groupId.trim();
+            if (document.getElementById(gid)) {
+              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.setAttribute('required', ''); });
+              // Add required indicator if not present
+              var indicator = document.getElementById(gid).querySelector('.required-indicator');
+              if (!indicator) {
+                indicator = document.createElement('p');
+                indicator.textContent = '*required';
+                indicator.style.fontStyle = 'italic';
+                indicator.style.color = 'red';
+                indicator.className = 'required-indicator';
+                document.getElementById(gid).insertBefore(indicator, document.getElementById(gid).firstChild);
+              }
+            }
+          });
+        }
+
+        // Hide and unrequire other groups
+        if (hidesGroups) {
+          const groupsToHide = splitDataList(hidesGroups);
+          groupsToHide.forEach(groupId => {
+            const trimmedGroupId = groupId.trim();
+            // Check if any other selected input shows this group
+            const otherInputs = Array.from(document.querySelectorAll('input[type="checkbox"], input[type="radio"]')).filter(input => input !== selectedInput && input.checked);
+            const isShownByOther = otherInputs.some(input => {
+              const showGroup = input.dataset.showGroup;
+              const showGroups = input.dataset.showGroups;
+              const requireGroup = input.dataset.requireGroup;
+              const requireGroups = input.dataset.requireGroups;
+              return showGroup === trimmedGroupId || (showGroups && splitDataList(showGroups).includes(trimmedGroupId)) ||
+                requireGroup === trimmedGroupId || (requireGroups && splitDataList(requireGroups).includes(trimmedGroupId));
+            });
+            if (!isShownByOther) {
+              if (document.getElementById(trimmedGroupId)) {
+                document.getElementById(trimmedGroupId).setAttribute('hidden', '');
+                Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
+                // Also uncheck any checked checkboxes in hidden group
+                Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input[type="checkbox"]')).forEach(function(cb) { cb.checked = false; });
+                // Remove required indicator
+                var indicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
+                if (indicator) { indicator.remove(); }
+                // Hide links for this group
+                Array.from(document.querySelectorAll('a[data-target="' + trimmedGroupId + '"]')).forEach(function(link) { link.style.display = 'none'; });
+              }
+            }
+          });
+        }
+
+        // Re-evaluate single-checkbox optionals after changes
+        if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
+        // Refresh disposition summary
+        if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
+        // Update bookmark bar visibility
+        if (typeof updateBookmarkBarVisibility === 'function') updateBookmarkBarVisibility();
+      }
+
+      // Attach the event listener to all checkboxes and radios
+      document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
+        input.addEventListener('change', handleInputChange);
+      });
+
+      // Handle bookmark link clicks
+      document.querySelectorAll('a[data-target]').forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          var targetId = this.dataset.target;
+          if (document.getElementById(targetId)) {
+            document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+          }
+        });
+      });
+
+      // Utility: get a human-friendly label for a fieldset (legend/h3/h4 fallback to id)
+      function getFieldsetLabel(fieldset) {
+        // Prefer an explicit `data-group-value` when present (added in header info)
+        if (fieldset.dataset && fieldset.dataset.groupValue && fieldset.dataset.groupValue.trim()) {
+          return fieldset.dataset.groupValue.trim();
+        }
+        const legend = fieldset.querySelector('legend');
+        if (legend && legend.textContent.trim()) return legend.textContent.trim();
+        const heading = fieldset.querySelector('h3, h4, h2, h1');
+        if (heading && heading.textContent.trim()) return heading.textContent.trim();
+        return fieldset.id || 'unnamed';
+      }
+
+      // Return fieldset elements that declare the given input name in their `data-group-for` (accepts comma lists)
+      function getFieldsetsForInputName(inputName) {
+        if (!inputName) return [];
+        const all = Array.from(document.querySelectorAll('fieldset'));
+        return all.filter(fs => {
+          const df = fs.dataset && fs.dataset.groupFor;
+          if (!df) return false;
+          const parts = splitDataList(df);
+          return parts.includes(inputName) || parts.includes(inputName.trim());
+        });
+      }
+
+      // Find fieldsets that consist of a single checkbox input and mark them optional
+      function markSingleCheckboxOptionals() {
+        const all = Array.from(document.querySelectorAll('fieldset'));
+        all.forEach(fs => {
+          // do not override explicit required markers
+          if (fs.dataset && (fs.dataset.required !== undefined || fs.dataset.requiredText)) return;
+          const inputs = Array.from(fs.querySelectorAll('input'));
+          // Only one input and it's a checkbox, and it's not already required
+          if (inputs.length === 1 && inputs[0].type === 'checkbox' && !inputs[0].hasAttribute('required')) {
+            // mark dataset optional
+            fs.dataset.optional = '';
+            if (!fs.dataset.optionalText) fs.dataset.optionalText = '*optional';
+            // insert a visual optional indicator if not already present
+            if (!fs.querySelector('.optional-indicator')) {
+              const p = document.createElement('p');
+              p.className = 'optional-indicator';
+              p.textContent = fs.dataset.optionalText || '*optional';
+              fs.insertBefore(p, fs.firstChild);
+            }
+          } else {
+            // remove optional marker/indicator if conditions no longer hold
+            if (fs.dataset && fs.dataset.optional !== undefined) delete fs.dataset.optional;
+            const existing = fs.querySelector('.optional-indicator');
+            if (existing) existing.remove();
+          }
+        });
+      }
+
+      // Show or hide the bookmark bar depending on whether any bookmark links are visible
+      function updateBookmarkBarVisibility() {
+        if (!document.getElementById('bookmarkBar')) return;
+        const links = Array.from(document.querySelectorAll('a[data-target]'));
+        let anyVisible = false;
+        links.forEach(function(a) {
+          const targetId = a.dataset.target;
+          // Determine visibility: element must exist, not have [hidden], and have layout
+          var isVisible = false;
+          if (document.getElementById(targetId) && !document.getElementById(targetId).hasAttribute('hidden')) {
+            // Safely check computed style and layout rects; if APIs missing, assume visible
+            var cs = null;
+            if (typeof window.getComputedStyle === 'function') cs = window.getComputedStyle(document.getElementById(targetId));
+            var rects = (typeof document.getElementById(targetId).getClientRects === 'function') ? document.getElementById(targetId).getClientRects() : [];
+            if (!cs) {
+              isVisible = rects.length > 0;
+            } else {
+              isVisible = cs.display !== 'none' && cs.visibility !== 'hidden' && rects.length > 0;
+            }
+          }
+          a.style.display = isVisible ? 'block' : 'none';
+          if (isVisible) anyVisible = true;
+        });
+        // Update separator classes so only visible links (and not the last one) get the separator
+        const visibleLinks = links.filter(a => a.style.display !== 'none');
+        visibleLinks.forEach((a, idx) => {
+          if (idx < visibleLinks.length - 1) a.classList.add('sep'); else a.classList.remove('sep');
+        });
+        // Ensure hidden links don't keep the sep class
+        links.filter(a => a.style.display === 'none').forEach(a => a.classList.remove('sep'));
+
+        if (anyVisible) document.getElementById('bookmarkBar').removeAttribute('hidden'); else document.getElementById('bookmarkBar').setAttribute('hidden', '');
+      }
+
+      // Check whether all required inputs inside a fieldset are satisfied
+      function isFieldsetComplete(fieldset) {
+        const requiredInputs = Array.from(fieldset.querySelectorAll('input[required], textarea[required], select[required]'));
+        const hasFieldsetRequired = (fieldset.dataset && (fieldset.dataset.required !== undefined || fieldset.dataset.requiredText)) || fieldset.querySelector('.required-indicator');
+
+        // If there are no explicit required inputs and the fieldset is not marked required, consider it complete
+        if (requiredInputs.length === 0 && !hasFieldsetRequired) return true;
+
+        // If explicit required inputs exist, enforce their rules as before
+        if (requiredInputs.length > 0) {
+          // Handle checkbox/radio groups by name: each distinct name must have at least one checked.
+          // Use all inputs in the fieldset that share the name (not only those that currently have [required])
+          const grouped = {};
+          requiredInputs.forEach(inp => {
+            const t = inp.type;
+            if (t === 'checkbox' || t === 'radio') {
+              grouped[inp.name] = true;
+            }
+          });
+          var anyGroupChecked = false;
+          for (const name in grouped) {
+            // gather all inputs with this name inside the fieldset
+            const allWithName = Array.from(fieldset.querySelectorAll('input[name="' + name + '"]'));
+            const any = allWithName.some(i => i.checked === true);
+            if (any) anyGroupChecked = true; else return false;
+          }
+          // If at least one checkbox/radio group had a checked value, consider the fieldset complete
+          if (anyGroupChecked) return true;
+
+          // Check non-checkbox/radio required inputs
+          const others = requiredInputs.filter(i => i.type !== 'checkbox' && i.type !== 'radio');
+          for (const o of others) {
+            const tag = o.tagName.toLowerCase();
+            if (tag === 'textarea' || o.type === 'text' || o.type === 'date' || o.type === 'number' || tag === 'select') {
+              if (!o.value || (typeof o.value === 'string' && o.value.trim() === '')) return false;
+            } else {
+              if (!o.value) return false;
+            }
+          }
+
+          return true;
+        }
+
+        // No explicit required inputs but the fieldset is marked required (data-required / required-indicator)
+        // Consider the fieldset complete if any of its inputs have been filled/selected.
+        const radios = Array.from(fieldset.querySelectorAll('input[type="radio"]'));
+        if (radios.length > 0) {
+          return radios.some(r => r.checked);
+        }
+        const checkboxes = Array.from(fieldset.querySelectorAll('input[type="checkbox"]'));
+        if (checkboxes.length > 0) {
+          return checkboxes.some(c => c.checked);
+        }
+        const otherInputs = Array.from(fieldset.querySelectorAll('input:not([type=radio]):not([type=checkbox]), textarea, select'));
+        if (otherInputs.length > 0) {
+          return otherInputs.some(o => {
+            const tag = o.tagName.toLowerCase();
+            if (tag === 'select') return !!o.value;
+            return !!o.value && String(o.value).trim() !== '';
+          });
+        }
+
+        // If there are no inputs at all, consider it incomplete
+        return false;
+      }
+
+      // Return an array of labels for fieldsets that have required inputs but are incomplete
+      function findIncompleteRequiredFieldsets() {
+        const results = [];
+        const fieldsets = Array.from(document.querySelectorAll('fieldset'));
+        fieldsets.forEach(fs => {
+          // Skip fieldsets that we've marked explicitly optional (single-checkbox optional)
+          if (fs.dataset && fs.dataset.optional !== undefined) return;
+
+          const hasRequiredAttr = fs.querySelector('input[required], textarea[required], select[required]');
+          const hasFieldsetRequired = (fs.dataset && (fs.dataset.required !== undefined || fs.dataset.requiredText)) || fs.querySelector('.required-indicator');
+          if ((hasRequiredAttr || hasFieldsetRequired) && !isFieldsetComplete(fs)) {
+            results.push(getFieldsetLabel(fs));
+          }
+        });
+        return results;
+      }
+
+      // Update the disposition note area with the summary of incomplete required fieldsets
+      function updateDispositionNoteSummary() {
+        const container = document.getElementById('dispositionNote');
+        if (!container) return;
+        // Remove existing summary if present
+        const existing = container.querySelector('.required-summary');
+        if (existing) existing.remove();
+
+        const incomplete = findIncompleteRequiredFieldsets();
+        if (incomplete.length > 0) {
+          const p = document.createElement('p');
+          p.className = 'required-summary';
+          p.textContent = 'Required fields not completed: ' + incomplete.join(', ');
+          container.insertBefore(p, container.firstChild);
+        }
+      }
+
+      // Update prewritten static note lines inside `#dispositionNote`.
+      // Each static note element should live inside `#dispositionNote`, have an `id`, be hidden by default,
+      // and optionally include a `data-note-template` like: "Member: {fullName} (ID {memberID})"
+      // Inputs that should control those lines must include `data-show-note="noteId1, noteId2"`.
+      // This function uses only inline DOM reads (no variables assigned from query results).
+      function updateNoteLines() {
+        // For every note element inside the disposition area that carries a template or is targetable
+        document.querySelectorAll('#dispositionNote [data-note-template], #dispositionNote [data-note-for]').forEach(function(noteEl) {
+          var noteId = noteEl.id;
+          if (!noteId) return;
+
+          // Determine whether any input that references this noteId should show it
+          var shouldShow = false;
+          document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(ctrl) {
+            var sd = ctrl.dataset && ctrl.dataset.showNote;
+            if (!sd) return;
+            var list = splitDataList(sd);
+            if (list.indexOf(noteId) === -1) return;
+
+            // For checkboxes/radios require explicit true check
+            if (ctrl.type === 'checkbox' || ctrl.type === 'radio') {
+              if (ctrl.checked === true) shouldShow = true;
+            } else {
+              // For text/textarea/select/date show when value is non-empty (no trimming or normalization)
+              if (ctrl.value && String(ctrl.value) !== '') shouldShow = true;
+            }
+          });
+
+          if (shouldShow) {
+            if (document.getElementById(noteId)) document.getElementById(noteId).removeAttribute('hidden');
+            // Populate template placeholders inline without storing DOM-derived values in local variables.
+            if (document.getElementById(noteId) && document.getElementById(noteId).dataset && document.getElementById(noteId).dataset.noteTemplate) {
+              document.getElementById(noteId).textContent = document.getElementById(noteId).dataset.noteTemplate.replace(/\{([^}]+)\}/g, function(_, token) {
+                // support {list:inputName} to join checked values for checkbox/radio groups
+                if (String(token).indexOf('list:') === 0) {
+                  var group = String(token).slice(5);
+                  var parts = [];
+                  var nodes = document.getElementsByName(group);
+                  for (var i = 0; i < nodes.length; i++) {
+                    var n = nodes[i];
+                    if ((n.type === 'checkbox' || n.type === 'radio') && n.checked === true) {
+                      parts.push(n.value);
+                    }
+                  }
+                  return parts.join(', ');
+                }
+                // fallback: single-input placeholder referring to an element id
+                return (document.getElementById(token) && document.getElementById(token).value) || '';
+              });
+            }
+          } else {
+            if (document.getElementById(noteId)) document.getElementById(noteId).setAttribute('hidden', '');
+          }
+        });
+      }
+
+      // Wire inputs that declare `data-show-note` to update the static lines when changed/edited.
+      document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(el) {
+        el.addEventListener('input', updateNoteLines);
+        el.addEventListener('change', updateNoteLines);
+      });
+
+      // Run validation on input/change and on load
+      document.querySelectorAll('input, textarea, select').forEach(el => {
+        el.addEventListener('input', updateDispositionNoteSummary);
+        el.addEventListener('change', updateDispositionNoteSummary);
+        // keep the running disposition details updated
+        el.addEventListener('input', updateDispositionDetails);
+        el.addEventListener('change', updateDispositionDetails);
+      });
+      document.addEventListener('DOMContentLoaded', function() {
+        // Mark single-checkbox fieldsets optional first, then update summary
+        if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
+        if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
+
+        // Initialize bookmark link visibility according to fieldset hidden state
+        document.querySelectorAll('a[data-target]').forEach(link => {
+          const targetId = link.dataset.target;
+          const target = document.getElementById(targetId);
+          if (!target || target.hasAttribute('hidden')) {
+            link.style.display = 'none';
+          } else {
+            link.style.display = 'block';
+          }
+        });
+        // Show or hide bookmark bar depending on visible links
+        if (typeof updateBookmarkBarVisibility === 'function') updateBookmarkBarVisibility();
+
+        // Apply current checked inputs to ensure visibility/required state matches initial selections
+        const checkedInputs = Array.from(document.querySelectorAll('input[type="checkbox"], input[type="radio"]')).filter(i => i.checked);
+        checkedInputs.forEach(i => {
+          if (typeof handleInputChange === 'function') handleInputChange({ target: i });
+        });
+        // Re-run optional marking in case handleInputChange caused changes
+        if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
+        if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
+        // Initialize disposition details
+        if (typeof updateDispositionDetails === 'function') updateDispositionDetails();
+        if (typeof updateNoteLines === 'function') updateNoteLines();
+      });
+
+      // hide all sections except Member or Lead selection
+      // visibility helper by radio/checkbox selection
+      // required helper by radio/checkbox selection
+      // visibility and required fields
+    </script>
+  </body>
+</html>
