@@ -1541,7 +1541,6 @@
       </fieldset>
     </form>
     <script>
-      // Helper: split comma-separated data attribute values robustly
       function splitDataList(str) {
         if (!str || typeof str !== 'string') return [];
         return str.split(',').map(s => s.trim()).filter(Boolean);
@@ -1564,7 +1563,6 @@
           console.log(`Radio button with name "${inputName}" and value "${inputValue}" has been selected.`);
         }
 
-        // Handle interrelations based on data attributes
         const requiresGroup = selectedInput.dataset.requireGroup;
         const requiresGroups = selectedInput.dataset.requireGroups;
         const unrequireGroup = selectedInput.dataset.unrequireGroup;
@@ -1573,7 +1571,6 @@
         const showGroup = selectedInput.dataset.showGroup;
         const showGroups = selectedInput.dataset.showGroups;
 
-        // Collect groups to require
         const groupsToRequire = [];
         if (requiresGroup) {
           groupsToRequire.push(requiresGroup);
@@ -1582,7 +1579,6 @@
           groupsToRequire.push(...splitDataList(requiresGroups));
         }
 
-        // Collect groups to unrequire
         const groupsToUnrequire = [];
         if (unrequireGroup) {
           groupsToUnrequire.push(unrequireGroup);
@@ -1591,7 +1587,6 @@
           groupsToUnrequire.push(...splitDataList(unrequireGroups));
         }
 
-        // Collect groups to show
         const groupsToShow = [];
         if (showGroup) {
           groupsToShow.push(showGroup);
@@ -1605,7 +1600,6 @@
           var gid = groupId.trim();
             if (document.getElementById(gid)) {
               document.getElementById(gid).removeAttribute('hidden');
-              // Show links for this group
               Array.from(document.querySelectorAll('a[data-target="' + gid + '"]')).forEach(function(link) { link.style.display = 'block'; });
             }
           });
@@ -1613,9 +1607,7 @@
             var gid = groupId.trim();
             if (document.getElementById(gid)) {
               document.getElementById(gid).removeAttribute('hidden');
-              // Set required on all inputs in the group
               Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.setAttribute('required', ''); });
-              // Add required indicator if not present
               var indicator = document.getElementById(gid).querySelector('.required-indicator');
               if (!indicator) {
                 indicator = document.createElement('p');
@@ -1630,20 +1622,16 @@
           groupsToUnrequire.forEach(function(groupId) {
             var gid = groupId.trim();
             if (document.getElementById(gid)) {
-              // Remove required from all inputs in the group
               Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
-              // Remove required indicator
               var indicator = document.getElementById(gid).querySelector('.required-indicator');
               if (indicator) { indicator.remove(); }
             }
           });
         } else if (inputType === 'checkbox' && !isCurrentlyChecked) {
-          // Optionally hide on deselect
           groupsToShow.forEach(function(groupId) {
           var gid = groupId.trim();
             if (document.getElementById(gid)) {
               document.getElementById(gid).setAttribute('hidden', '');
-              // Hide links for this group
               Array.from(document.querySelectorAll('a[data-target="' + gid + '"]')).forEach(function(link) { link.style.display = 'none'; });
             }
           });
@@ -1652,17 +1640,14 @@
             if (document.getElementById(gid)) {
               document.getElementById(gid).setAttribute('hidden', '');
               Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
-              // Remove required indicator
               var indicator = document.getElementById(gid).querySelector('.required-indicator');
               if (indicator) { indicator.remove(); }
             }
           });
-          // Optionally re-require on deselect for unrequire groups
           groupsToUnrequire.forEach(function(groupId) {
             var gid = groupId.trim();
             if (document.getElementById(gid)) {
               Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.setAttribute('required', ''); });
-              // Add required indicator if not present
               var indicator = document.getElementById(gid).querySelector('.required-indicator');
               if (!indicator) {
                 indicator = document.createElement('p');
@@ -1676,12 +1661,10 @@
           });
         }
 
-        // Hide and unrequire other groups
         if (hidesGroups) {
           const groupsToHide = splitDataList(hidesGroups);
           groupsToHide.forEach(groupId => {
             const trimmedGroupId = groupId.trim();
-            // Check if any other selected input shows this group
             const otherInputs = Array.from(document.querySelectorAll('input[type="checkbox"], input[type="radio"]')).filter(input => input !== selectedInput && input.checked);
             const isShownByOther = otherInputs.some(input => {
               const showGroup = input.dataset.showGroup;
@@ -1695,32 +1678,24 @@
               if (document.getElementById(trimmedGroupId)) {
                 document.getElementById(trimmedGroupId).setAttribute('hidden', '');
                 Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
-                // Also uncheck any checked checkboxes in hidden group
                 Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input[type="checkbox"]')).forEach(function(cb) { cb.checked = false; });
-                // Remove required indicator
                 var indicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
                 if (indicator) { indicator.remove(); }
-                // Hide links for this group
                 Array.from(document.querySelectorAll('a[data-target="' + trimmedGroupId + '"]')).forEach(function(link) { link.style.display = 'none'; });
               }
             }
           });
         }
 
-        // Re-evaluate single-checkbox optionals after changes
         if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
-        // Refresh disposition summary
         if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
-        // Update bookmark bar visibility
         if (typeof updateBookmarkBarVisibility === 'function') updateBookmarkBarVisibility();
       }
 
-      // Attach the event listener to all checkboxes and radios
       document.querySelectorAll('input[type="checkbox"], input[type="radio"]').forEach(input => {
         input.addEventListener('change', handleInputChange);
       });
 
-      // Handle bookmark link clicks
       document.querySelectorAll('a[data-target]').forEach(link => {
         link.addEventListener('click', function(e) {
           e.preventDefault();
@@ -1731,9 +1706,7 @@
         });
       });
 
-      // Utility: get a human-friendly label for a fieldset (legend/h3/h4 fallback to id)
       function getFieldsetLabel(fieldset) {
-        // Prefer an explicit `data-group-value` when present (added in header info)
         if (fieldset.dataset && fieldset.dataset.groupValue && fieldset.dataset.groupValue.trim()) {
           return fieldset.dataset.groupValue.trim();
         }
@@ -1744,7 +1717,6 @@
         return fieldset.id || 'unnamed';
       }
 
-      // Return fieldset elements that declare the given input name in their `data-group-for` (accepts comma lists)
       function getFieldsetsForInputName(inputName) {
         if (!inputName) return [];
         const all = Array.from(document.querySelectorAll('fieldset'));
@@ -1756,19 +1728,14 @@
         });
       }
 
-      // Find fieldsets that consist of a single checkbox input and mark them optional
       function markSingleCheckboxOptionals() {
         const all = Array.from(document.querySelectorAll('fieldset'));
         all.forEach(fs => {
-          // do not override explicit required markers
           if (fs.dataset && (fs.dataset.required !== undefined || fs.dataset.requiredText)) return;
           const inputs = Array.from(fs.querySelectorAll('input'));
-          // Only one input and it's a checkbox, and it's not already required
           if (inputs.length === 1 && inputs[0].type === 'checkbox' && !inputs[0].hasAttribute('required')) {
-            // mark dataset optional
             fs.dataset.optional = '';
             if (!fs.dataset.optionalText) fs.dataset.optionalText = '*optional';
-            // insert a visual optional indicator if not already present
             if (!fs.querySelector('.optional-indicator')) {
               const p = document.createElement('p');
               p.className = 'optional-indicator';
@@ -1776,7 +1743,6 @@
               fs.insertBefore(p, fs.firstChild);
             }
           } else {
-            // remove optional marker/indicator if conditions no longer hold
             if (fs.dataset && fs.dataset.optional !== undefined) delete fs.dataset.optional;
             const existing = fs.querySelector('.optional-indicator');
             if (existing) existing.remove();
@@ -1784,17 +1750,14 @@
         });
       }
 
-      // Show or hide the bookmark bar depending on whether any bookmark links are visible
       function updateBookmarkBarVisibility() {
         if (!document.getElementById('bookmarkBar')) return;
         const links = Array.from(document.querySelectorAll('a[data-target]'));
         let anyVisible = false;
         links.forEach(function(a) {
           const targetId = a.dataset.target;
-          // Determine visibility: element must exist, not have [hidden], and have layout
           var isVisible = false;
           if (document.getElementById(targetId) && !document.getElementById(targetId).hasAttribute('hidden')) {
-            // Safely check computed style and layout rects; if APIs missing, assume visible
             var cs = null;
             if (typeof window.getComputedStyle === 'function') cs = window.getComputedStyle(document.getElementById(targetId));
             var rects = (typeof document.getElementById(targetId).getClientRects === 'function') ? document.getElementById(targetId).getClientRects() : [];
@@ -1807,29 +1770,22 @@
           a.style.display = isVisible ? 'block' : 'none';
           if (isVisible) anyVisible = true;
         });
-        // Update separator classes so only visible links (and not the last one) get the separator
         const visibleLinks = links.filter(a => a.style.display !== 'none');
         visibleLinks.forEach((a, idx) => {
           if (idx < visibleLinks.length - 1) a.classList.add('sep'); else a.classList.remove('sep');
         });
-        // Ensure hidden links don't keep the sep class
         links.filter(a => a.style.display === 'none').forEach(a => a.classList.remove('sep'));
 
         if (anyVisible) document.getElementById('bookmarkBar').removeAttribute('hidden'); else document.getElementById('bookmarkBar').setAttribute('hidden', '');
       }
 
-      // Check whether all required inputs inside a fieldset are satisfied
       function isFieldsetComplete(fieldset) {
         const requiredInputs = Array.from(fieldset.querySelectorAll('input[required], textarea[required], select[required]'));
         const hasFieldsetRequired = (fieldset.dataset && (fieldset.dataset.required !== undefined || fieldset.dataset.requiredText)) || fieldset.querySelector('.required-indicator');
 
-        // If there are no explicit required inputs and the fieldset is not marked required, consider it complete
         if (requiredInputs.length === 0 && !hasFieldsetRequired) return true;
 
-        // If explicit required inputs exist, enforce their rules as before
         if (requiredInputs.length > 0) {
-          // Handle checkbox/radio groups by name: each distinct name must have at least one checked.
-          // Use all inputs in the fieldset that share the name (not only those that currently have [required])
           const grouped = {};
           requiredInputs.forEach(inp => {
             const t = inp.type;
@@ -1839,15 +1795,12 @@
           });
           var anyGroupChecked = false;
           for (const name in grouped) {
-            // gather all inputs with this name inside the fieldset
             const allWithName = Array.from(fieldset.querySelectorAll('input[name="' + name + '"]'));
             const any = allWithName.some(i => i.checked === true);
             if (any) anyGroupChecked = true; else return false;
           }
-          // If at least one checkbox/radio group had a checked value, consider the fieldset complete
           if (anyGroupChecked) return true;
 
-          // Check non-checkbox/radio required inputs
           const others = requiredInputs.filter(i => i.type !== 'checkbox' && i.type !== 'radio');
           for (const o of others) {
             const tag = o.tagName.toLowerCase();
@@ -1861,8 +1814,6 @@
           return true;
         }
 
-        // No explicit required inputs but the fieldset is marked required (data-required / required-indicator)
-        // Consider the fieldset complete if any of its inputs have been filled/selected.
         const radios = Array.from(fieldset.querySelectorAll('input[type="radio"]'));
         if (radios.length > 0) {
           return radios.some(r => r.checked);
@@ -1880,16 +1831,13 @@
           });
         }
 
-        // If there are no inputs at all, consider it incomplete
         return false;
       }
 
-      // Return an array of labels for fieldsets that have required inputs but are incomplete
       function findIncompleteRequiredFieldsets() {
         const results = [];
         const fieldsets = Array.from(document.querySelectorAll('fieldset'));
         fieldsets.forEach(fs => {
-          // Skip fieldsets that we've marked explicitly optional (single-checkbox optional)
           if (fs.dataset && fs.dataset.optional !== undefined) return;
 
           const hasRequiredAttr = fs.querySelector('input[required], textarea[required], select[required]');
@@ -1901,11 +1849,9 @@
         return results;
       }
 
-      // Update the disposition note area with the summary of incomplete required fieldsets
       function updateDispositionNoteSummary() {
         const container = document.getElementById('dispositionNote');
         if (!container) return;
-        // Remove existing summary if present
         const existing = container.querySelector('.required-summary');
         if (existing) existing.remove();
 
@@ -1918,18 +1864,12 @@
         }
       }
 
-      // Update prewritten static note lines inside `#dispositionNote`.
-      // Each static note element should live inside `#dispositionNote`, have an `id`, be hidden by default,
-      // and optionally include a `data-note-template` like: "Member: {fullName} (ID {memberID})"
-      // Inputs that should control those lines must include `data-show-note="noteId1, noteId2"`.
       // This function uses only inline DOM reads (no variables assigned from query results).
       function updateNoteLines() {
-        // For every note element inside the disposition area that carries a template or is targetable
         document.querySelectorAll('#dispositionNote [data-note-template], #dispositionNote [data-note-for]').forEach(function(noteEl) {
           var noteId = noteEl.id;
           if (!noteId) return;
 
-          // Determine whether any input that references this noteId should show it
           var shouldShow = false;
           document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(ctrl) {
             var sd = ctrl.dataset && ctrl.dataset.showNote;
@@ -1937,7 +1877,6 @@
             var list = splitDataList(sd);
             if (list.indexOf(noteId) === -1) return;
 
-            // For checkboxes/radios require explicit true check
             if (ctrl.type === 'checkbox' || ctrl.type === 'radio') {
               if (ctrl.checked === true) shouldShow = true;
             } else {
@@ -1965,19 +1904,15 @@
                   }
                   return parts.join(', ');
                 }
-                // Try id first
                 var el = document.getElementById(token);
                 if (el) return String(el.value || '').trim();
-                // Fallback: try name (useful for radio groups)
                 var els = document.getElementsByName(token);
                 if (els && els.length > 0) {
-                  // radio/checkbox group
                   if (els[0].type === 'radio' || els[0].type === 'checkbox') {
                     var parts = [];
                     for (var j = 0; j < els.length; j++) { if (els[j].checked) parts.push(els[j].value); }
                     return parts.join(', ');
                   }
-                  // otherwise return first element's value
                   return String(els[0].value || '').trim();
                 }
                 return '';
@@ -2008,11 +1943,9 @@
         el.addEventListener('change', updateDispositionDetails);
       });
       document.addEventListener('DOMContentLoaded', function() {
-        // Mark single-checkbox fieldsets optional first, then update summary
         if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
         if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
 
-        // Initialize bookmark link visibility according to fieldset hidden state
         document.querySelectorAll('a[data-target]').forEach(link => {
           const targetId = link.dataset.target;
           const target = document.getElementById(targetId);
@@ -2022,15 +1955,12 @@
             link.style.display = 'block';
           }
         });
-        // Show or hide bookmark bar depending on visible links
         if (typeof updateBookmarkBarVisibility === 'function') updateBookmarkBarVisibility();
 
-        // Apply current checked inputs to ensure visibility/required state matches initial selections
         const checkedInputs = Array.from(document.querySelectorAll('input[type="checkbox"], input[type="radio"]')).filter(i => i.checked);
         checkedInputs.forEach(i => {
           if (typeof handleInputChange === 'function') handleInputChange({ target: i });
         });
-        // Re-run optional marking in case handleInputChange caused changes
         if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
         if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
         // Initialize disposition details
@@ -2038,10 +1968,26 @@
         if (typeof updateNoteLines === 'function') updateNoteLines();
       });
 
-      // hide all sections except Member or Lead selection
-      // visibility helper by radio/checkbox selection
-      // required helper by radio/checkbox selection
-      // visibility and required fields
+      // Force refresh handler: bypass cache by replacing URL with a timestamp
+      function forceRefresh() {
+        try {
+          var base = window.location.origin + window.location.pathname + window.location.search;
+          var sep = base.indexOf('?') !== -1 ? '&' : '?';
+          window.location.replace(base + sep + '_=' + Date.now());
+        } catch (e) {
+          // fallback to plain reload
+          window.location.reload();
+        }
+      }
+
+      // Attach click handler to the Clear Form button so it triggers a force refresh
+      (function attachForceRefreshToClearForm() {
+        var clearBtn = document.getElementById('submitForm');
+        if (clearBtn) clearBtn.addEventListener('click', function (e) {
+          e.preventDefault();
+          forceRefresh();
+        });
+      })();
     </script>
   </body>
 </html>
