@@ -87,15 +87,7 @@
         ;
         border-radius: 5px;
       }
-      button {
-        padding: 10px 20px;
-        font-size: 16pt;
-        border: none;
-        border-radius: 5px;
-        background-color: #000000;
-        color: white;
-        cursor: pointer;
-      }
+      /* Button styling removed so browsers use their native styles */
       input[type="checkbox"], input[type="radio"] {
         transform: scale(1.5);
         margin-right: 8px;
@@ -1535,9 +1527,6 @@
         <p id="noteNotesText" hidden data-note-template="Notes: {notes}"></p>
         <p id="noteEinstein" hidden data-note-template="{einstein}"></p>
       </div>
-      <div class="button-container">
-      <button type="button" id="submitForm">Clear Form</button>
-      </div>
       </fieldset>
     </form>
     <script>
@@ -1597,65 +1586,65 @@
 
         if (inputType === 'checkbox' && isCurrentlyChecked || inputType === 'radio') {
           groupsToShow.forEach(function(groupId) {
-          var gid = groupId.trim();
-            if (document.getElementById(gid)) {
-              document.getElementById(gid).removeAttribute('hidden');
-              Array.from(document.querySelectorAll('a[data-target="' + gid + '"]')).forEach(function(link) { link.style.display = 'block'; });
+          var trimmedGroupId = groupId.trim();
+            if (document.getElementById(trimmedGroupId)) {
+              document.getElementById(trimmedGroupId).removeAttribute('hidden');
+              Array.from(document.querySelectorAll('a[data-target="' + trimmedGroupId + '"]')).forEach(function(bookmarkLink) { bookmarkLink.style.display = 'block'; });
             }
           });
           groupsToRequire.forEach(function(groupId) {
-            var gid = groupId.trim();
-            if (document.getElementById(gid)) {
-              document.getElementById(gid).removeAttribute('hidden');
-              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.setAttribute('required', ''); });
-              var indicator = document.getElementById(gid).querySelector('.required-indicator');
-              if (!indicator) {
-                indicator = document.createElement('p');
-                indicator.textContent = '*required';
-                indicator.style.fontStyle = 'italic';
-                indicator.style.color = 'red';
-                indicator.className = 'required-indicator';
-                document.getElementById(gid).insertBefore(indicator, document.getElementById(gid).firstChild);
+            var trimmedGroupId = groupId.trim();
+            if (document.getElementById(trimmedGroupId)) {
+              document.getElementById(trimmedGroupId).removeAttribute('hidden');
+              Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(inputEl) { inputEl.setAttribute('required', ''); });
+              var requiredIndicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
+              if (!requiredIndicator) {
+                requiredIndicator = document.createElement('p');
+                requiredIndicator.textContent = '*required';
+                requiredIndicator.style.fontStyle = 'italic';
+                requiredIndicator.style.color = 'red';
+                requiredIndicator.className = 'required-indicator';
+                document.getElementById(trimmedGroupId).insertBefore(requiredIndicator, document.getElementById(trimmedGroupId).firstChild);
               }
             }
           });
           groupsToUnrequire.forEach(function(groupId) {
-            var gid = groupId.trim();
-            if (document.getElementById(gid)) {
-              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
-              var indicator = document.getElementById(gid).querySelector('.required-indicator');
-              if (indicator) { indicator.remove(); }
+            var trimmedGroupId = groupId.trim();
+            if (document.getElementById(trimmedGroupId)) {
+              Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(inputEl) { inputEl.removeAttribute('required'); });
+              var requiredIndicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
+              if (requiredIndicator) { requiredIndicator.remove(); }
             }
           });
         } else if (inputType === 'checkbox' && !isCurrentlyChecked) {
           groupsToShow.forEach(function(groupId) {
-          var gid = groupId.trim();
-            if (document.getElementById(gid)) {
-              document.getElementById(gid).setAttribute('hidden', '');
-              Array.from(document.querySelectorAll('a[data-target="' + gid + '"]')).forEach(function(link) { link.style.display = 'none'; });
+          var trimmedGroupId = groupId.trim();
+            if (document.getElementById(trimmedGroupId)) {
+              document.getElementById(trimmedGroupId).setAttribute('hidden', '');
+              Array.from(document.querySelectorAll('a[data-target="' + trimmedGroupId + '"]')).forEach(function(bookmarkLink) { bookmarkLink.style.display = 'none'; });
             }
           });
           groupsToRequire.forEach(function(groupId) {
-            var gid = groupId.trim();
-            if (document.getElementById(gid)) {
-              document.getElementById(gid).setAttribute('hidden', '');
-              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
-              var indicator = document.getElementById(gid).querySelector('.required-indicator');
-              if (indicator) { indicator.remove(); }
+            var trimmedGroupId = groupId.trim();
+            if (document.getElementById(trimmedGroupId)) {
+              document.getElementById(trimmedGroupId).setAttribute('hidden', '');
+              Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(inputEl) { inputEl.removeAttribute('required'); });
+              var requiredIndicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
+              if (requiredIndicator) { requiredIndicator.remove(); }
             }
           });
           groupsToUnrequire.forEach(function(groupId) {
-            var gid = groupId.trim();
-            if (document.getElementById(gid)) {
-              Array.from(document.getElementById(gid).querySelectorAll('input')).forEach(function(input) { input.setAttribute('required', ''); });
-              var indicator = document.getElementById(gid).querySelector('.required-indicator');
-              if (!indicator) {
-                indicator = document.createElement('p');
-                indicator.textContent = '*required';
-                indicator.style.fontStyle = 'italic';
-                indicator.style.color = 'red';
-                indicator.className = 'required-indicator';
-                document.getElementById(gid).insertBefore(indicator, document.getElementById(gid).firstChild);
+            var trimmedGroupId = groupId.trim();
+            if (document.getElementById(trimmedGroupId)) {
+              Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(inputEl) { inputEl.setAttribute('required', ''); });
+              var requiredIndicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
+              if (!requiredIndicator) {
+                requiredIndicator = document.createElement('p');
+                requiredIndicator.textContent = '*required';
+                requiredIndicator.style.fontStyle = 'italic';
+                requiredIndicator.style.color = 'red';
+                requiredIndicator.className = 'required-indicator';
+                document.getElementById(trimmedGroupId).insertBefore(requiredIndicator, document.getElementById(trimmedGroupId).firstChild);
               }
             }
           });
@@ -1679,8 +1668,8 @@
                 document.getElementById(trimmedGroupId).setAttribute('hidden', '');
                 Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input')).forEach(function(input) { input.removeAttribute('required'); });
                 Array.from(document.getElementById(trimmedGroupId).querySelectorAll('input[type="checkbox"]')).forEach(function(cb) { cb.checked = false; });
-                var indicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
-                if (indicator) { indicator.remove(); }
+                var requiredIndicator = document.getElementById(trimmedGroupId).querySelector('.required-indicator');
+                if (requiredIndicator) { requiredIndicator.remove(); }
                 Array.from(document.querySelectorAll('a[data-target="' + trimmedGroupId + '"]')).forEach(function(link) { link.style.display = 'none'; });
               }
             }
@@ -1697,11 +1686,11 @@
       });
 
       document.querySelectorAll('a[data-target]').forEach(link => {
-        link.addEventListener('click', function(e) {
-          e.preventDefault();
-          var targetId = this.dataset.target;
-          if (document.getElementById(targetId)) {
-            document.getElementById(targetId).scrollIntoView({ behavior: 'smooth' });
+        link.addEventListener('click', function(clickEvent) {
+          clickEvent.preventDefault();
+          const anchorTargetId = this.dataset.target;
+          if (document.getElementById(anchorTargetId)) {
+            document.getElementById(anchorTargetId).scrollIntoView({ behavior: 'smooth' });
           }
         });
       });
@@ -1737,10 +1726,10 @@
             fs.dataset.optional = '';
             if (!fs.dataset.optionalText) fs.dataset.optionalText = '*optional';
             if (!fs.querySelector('.optional-indicator')) {
-              const p = document.createElement('p');
-              p.className = 'optional-indicator';
-              p.textContent = fs.dataset.optionalText || '*optional';
-              fs.insertBefore(p, fs.firstChild);
+              const optionalParagraph = document.createElement('p');
+              optionalParagraph.className = 'optional-indicator';
+              optionalParagraph.textContent = fs.dataset.optionalText || '*optional';
+              fs.insertBefore(optionalParagraph, fs.firstChild);
             }
           } else {
             if (fs.dataset && fs.dataset.optional !== undefined) delete fs.dataset.optional;
@@ -1754,27 +1743,27 @@
         if (!document.getElementById('bookmarkBar')) return;
         const links = Array.from(document.querySelectorAll('a[data-target]'));
         let anyVisible = false;
-        links.forEach(function(a) {
-          const targetId = a.dataset.target;
+        links.forEach(function(link) {
+          const targetId = link.dataset.target;
           var isVisible = false;
           if (document.getElementById(targetId) && !document.getElementById(targetId).hasAttribute('hidden')) {
-            var cs = null;
-            if (typeof window.getComputedStyle === 'function') cs = window.getComputedStyle(document.getElementById(targetId));
+            var computedStyle = null;
+            if (typeof window.getComputedStyle === 'function') computedStyle = window.getComputedStyle(document.getElementById(targetId));
             var rects = (typeof document.getElementById(targetId).getClientRects === 'function') ? document.getElementById(targetId).getClientRects() : [];
-            if (!cs) {
+            if (!computedStyle) {
               isVisible = rects.length > 0;
             } else {
-              isVisible = cs.display !== 'none' && cs.visibility !== 'hidden' && rects.length > 0;
+              isVisible = computedStyle.display !== 'none' && computedStyle.visibility !== 'hidden' && rects.length > 0;
             }
           }
-          a.style.display = isVisible ? 'block' : 'none';
+          link.style.display = isVisible ? 'block' : 'none';
           if (isVisible) anyVisible = true;
         });
-        const visibleLinks = links.filter(a => a.style.display !== 'none');
-        visibleLinks.forEach((a, idx) => {
-          if (idx < visibleLinks.length - 1) a.classList.add('sep'); else a.classList.remove('sep');
+        const visibleLinks = links.filter(link => link.style.display !== 'none');
+        visibleLinks.forEach((link, idx) => {
+          if (idx < visibleLinks.length - 1) link.classList.add('sep'); else link.classList.remove('sep');
         });
-        links.filter(a => a.style.display === 'none').forEach(a => a.classList.remove('sep'));
+        links.filter(link => link.style.display === 'none').forEach(link => link.classList.remove('sep'));
 
         if (anyVisible) document.getElementById('bookmarkBar').removeAttribute('hidden'); else document.getElementById('bookmarkBar').setAttribute('hidden', '');
       }
@@ -1787,27 +1776,27 @@
 
         if (requiredInputs.length > 0) {
           const grouped = {};
-          requiredInputs.forEach(inp => {
-            const t = inp.type;
-            if (t === 'checkbox' || t === 'radio') {
-              grouped[inp.name] = true;
+          requiredInputs.forEach(inputEl => {
+            const inputType = inputEl.type;
+            if (inputType === 'checkbox' || inputType === 'radio') {
+              grouped[inputEl.name] = true;
             }
           });
           var anyGroupChecked = false;
           for (const name in grouped) {
             const allWithName = Array.from(fieldset.querySelectorAll('input[name="' + name + '"]'));
-            const any = allWithName.some(i => i.checked === true);
+            const any = allWithName.some(inputCandidate => inputCandidate.checked === true);
             if (any) anyGroupChecked = true; else return false;
           }
           if (anyGroupChecked) return true;
 
-          const others = requiredInputs.filter(i => i.type !== 'checkbox' && i.type !== 'radio');
-          for (const o of others) {
-            const tag = o.tagName.toLowerCase();
-            if (tag === 'textarea' || o.type === 'text' || o.type === 'date' || o.type === 'number' || tag === 'select') {
-              if (!o.value || (typeof o.value === 'string' && o.value.trim() === '')) return false;
+          const others = requiredInputs.filter(inputEl => inputEl.type !== 'checkbox' && inputEl.type !== 'radio');
+          for (const otherInput of others) {
+            const tag = otherInput.tagName.toLowerCase();
+            if (tag === 'textarea' || otherInput.type === 'text' || otherInput.type === 'date' || otherInput.type === 'number' || tag === 'select') {
+              if (!otherInput.value || (typeof otherInput.value === 'string' && otherInput.value.trim() === '')) return false;
             } else {
-              if (!o.value) return false;
+              if (!otherInput.value) return false;
             }
           }
 
@@ -1837,13 +1826,13 @@
       function findIncompleteRequiredFieldsets() {
         const results = [];
         const fieldsets = Array.from(document.querySelectorAll('fieldset'));
-        fieldsets.forEach(fs => {
-          if (fs.dataset && fs.dataset.optional !== undefined) return;
+        fieldsets.forEach(fieldsetEl => {
+          if (fieldsetEl.dataset && fieldsetEl.dataset.optional !== undefined) return;
 
-          const hasRequiredAttr = fs.querySelector('input[required], textarea[required], select[required]');
-          const hasFieldsetRequired = (fs.dataset && (fs.dataset.required !== undefined || fs.dataset.requiredText)) || fs.querySelector('.required-indicator');
-          if ((hasRequiredAttr || hasFieldsetRequired) && !isFieldsetComplete(fs)) {
-            results.push(getFieldsetLabel(fs));
+          const hasRequiredAttr = fieldsetEl.querySelector('input[required], textarea[required], select[required]');
+          const hasFieldsetRequired = (fieldsetEl.dataset && (fieldsetEl.dataset.required !== undefined || fieldsetEl.dataset.requiredText)) || fieldsetEl.querySelector('.required-indicator');
+          if ((hasRequiredAttr || hasFieldsetRequired) && !isFieldsetComplete(fieldsetEl)) {
+            results.push(getFieldsetLabel(fieldsetEl));
           }
         });
         return results;
@@ -1857,31 +1846,31 @@
 
         const incomplete = findIncompleteRequiredFieldsets();
         if (incomplete.length > 0) {
-          const p = document.createElement('p');
-          p.className = 'required-summary';
-          p.textContent = 'Required fields not completed: ' + incomplete.join(', ');
-          container.insertBefore(p, container.firstChild);
+          const summaryParagraph = document.createElement('p');
+          summaryParagraph.className = 'required-summary';
+          summaryParagraph.textContent = 'Required fields not completed: ' + incomplete.join(', ');
+          container.insertBefore(summaryParagraph, container.firstChild);
         }
       }
 
       // This function uses only inline DOM reads (no variables assigned from query results).
       function updateNoteLines() {
-        document.querySelectorAll('#dispositionNote [data-note-template], #dispositionNote [data-note-for]').forEach(function(noteEl) {
-          var noteId = noteEl.id;
+        document.querySelectorAll('#dispositionNote [data-note-template], #dispositionNote [data-note-for]').forEach(function(noteElement) {
+          var noteId = noteElement.id;
           if (!noteId) return;
 
           var shouldShow = false;
-          document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(ctrl) {
-            var sd = ctrl.dataset && ctrl.dataset.showNote;
-            if (!sd) return;
-            var list = splitDataList(sd);
-            if (list.indexOf(noteId) === -1) return;
+          document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(controlEl) {
+            var showNoteData = controlEl.dataset && controlEl.dataset.showNote;
+            if (!showNoteData) return;
+            var showNoteList = splitDataList(showNoteData);
+            if (showNoteList.indexOf(noteId) === -1) return;
 
-            if (ctrl.type === 'checkbox' || ctrl.type === 'radio') {
-              if (ctrl.checked === true) shouldShow = true;
+            if (controlEl.type === 'checkbox' || controlEl.type === 'radio') {
+              if (controlEl.checked === true) shouldShow = true;
             } else {
               // For text/textarea/select/date show when value is non-empty (no trimming or normalization)
-              if (ctrl.value && String(ctrl.value) !== '') shouldShow = true;
+              if (controlEl.value && String(controlEl.value) !== '') shouldShow = true;
             }
           });
 
@@ -1889,7 +1878,7 @@
             if (document.getElementById(noteId)) document.getElementById(noteId).removeAttribute('hidden');
             // Populate template placeholders inline without storing DOM-derived values in local variables.
             if (document.getElementById(noteId) && document.getElementById(noteId).dataset && document.getElementById(noteId).dataset.noteTemplate) {
-              var template = document.getElementById(noteId).dataset.noteTemplate;
+              var noteTemplate = document.getElementById(noteId).dataset.noteTemplate;
               // support ${token} style as well as {token}
               function resolveToken(token) {
                 if (!token) return '';
@@ -1898,9 +1887,9 @@
                   var group = token.slice(5);
                   var parts = [];
                   var nodes = document.getElementsByName(group);
-                  for (var i = 0; i < nodes.length; i++) {
-                    var n = nodes[i];
-                    if ((n.type === 'checkbox' || n.type === 'radio') && n.checked === true) parts.push(n.value);
+                  for (var nodeIndex = 0; nodeIndex < nodes.length; nodeIndex++) {
+                    var nodeEl = nodes[nodeIndex];
+                    if ((nodeEl.type === 'checkbox' || nodeEl.type === 'radio') && nodeEl.checked === true) parts.push(nodeEl.value);
                   }
                   return parts.join(', ');
                 }
@@ -1910,7 +1899,7 @@
                 if (els && els.length > 0) {
                   if (els[0].type === 'radio' || els[0].type === 'checkbox') {
                     var parts = [];
-                    for (var j = 0; j < els.length; j++) { if (els[j].checked) parts.push(els[j].value); }
+                    for (var elementIndex = 0; elementIndex < els.length; elementIndex++) { var elementEl = els[elementIndex]; if (elementEl.checked) parts.push(elementEl.value); }
                     return parts.join(', ');
                   }
                   return String(els[0].value || '').trim();
@@ -1918,9 +1907,9 @@
                 return '';
               }
               // replace ${token} and {token}
-              var replaced = template.replace(/\$\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
-              replaced = replaced.replace(/\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
-              document.getElementById(noteId).textContent = replaced;
+              var replacedText = noteTemplate.replace(/\$\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
+              replacedText = replacedText.replace(/\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
+              document.getElementById(noteId).textContent = replacedText;
             }
           } else {
             if (document.getElementById(noteId)) document.getElementById(noteId).setAttribute('hidden', '');
@@ -1929,18 +1918,18 @@
       }
 
       // Wire inputs that declare `data-show-note` to update the static lines when changed/edited.
-      document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(el) {
-        el.addEventListener('input', updateNoteLines);
-        el.addEventListener('change', updateNoteLines);
+      document.querySelectorAll('input[data-show-note], textarea[data-show-note], select[data-show-note]').forEach(function(noteControlEl) {
+        noteControlEl.addEventListener('input', updateNoteLines);
+        noteControlEl.addEventListener('change', updateNoteLines);
       });
 
       // Run validation on input/change and on load
-      document.querySelectorAll('input, textarea, select').forEach(el => {
-        el.addEventListener('input', updateDispositionNoteSummary);
-        el.addEventListener('change', updateDispositionNoteSummary);
+      document.querySelectorAll('input, textarea, select').forEach(formControlEl => {
+        formControlEl.addEventListener('input', updateDispositionNoteSummary);
+        formControlEl.addEventListener('change', updateDispositionNoteSummary);
         // keep the running disposition details updated
-        el.addEventListener('input', updateDispositionDetails);
-        el.addEventListener('change', updateDispositionDetails);
+        formControlEl.addEventListener('input', updateDispositionDetails);
+        formControlEl.addEventListener('change', updateDispositionDetails);
       });
       document.addEventListener('DOMContentLoaded', function() {
         if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
@@ -1957,37 +1946,16 @@
         });
         if (typeof updateBookmarkBarVisibility === 'function') updateBookmarkBarVisibility();
 
-        const checkedInputs = Array.from(document.querySelectorAll('input[type="checkbox"], input[type="radio"]')).filter(i => i.checked);
-        checkedInputs.forEach(i => {
-          if (typeof handleInputChange === 'function') handleInputChange({ target: i });
+        const checkedInputs = Array.from(document.querySelectorAll('input[type="checkbox"], input[type="radio"]')).filter(inputCandidate => inputCandidate.checked);
+        checkedInputs.forEach(checkedInput => {
+          if (typeof handleInputChange === 'function') handleInputChange({ target: checkedInput });
         });
         if (typeof markSingleCheckboxOptionals === 'function') markSingleCheckboxOptionals();
         if (typeof updateDispositionNoteSummary === 'function') updateDispositionNoteSummary();
         // Initialize disposition details
         if (typeof updateDispositionDetails === 'function') updateDispositionDetails();
         if (typeof updateNoteLines === 'function') updateNoteLines();
-      });
-
-      // Force refresh handler: bypass cache by replacing URL with a timestamp
-      function forceRefresh() {
-        try {
-          var base = window.location.origin + window.location.pathname + window.location.search;
-          var sep = base.indexOf('?') !== -1 ? '&' : '?';
-          window.location.replace(base + sep + '_=' + Date.now());
-        } catch (e) {
-          // fallback to plain reload
-          window.location.reload();
-        }
-      }
-
-      // Attach click handler to the Clear Form button so it triggers a force refresh
-      (function attachForceRefreshToClearForm() {
-        var clearBtn = document.getElementById('submitForm');
-        if (clearBtn) clearBtn.addEventListener('click', function (e) {
-          e.preventDefault();
-          forceRefresh();
-        });
-      })();
+      });      
     </script>
   </body>
 </html>
