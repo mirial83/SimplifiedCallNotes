@@ -82,6 +82,14 @@
         padding: 0;
         text-align: left;
       }
+      /* Ensure the disposition note container and its generated lines are left-aligned
+         (overrides the global centering applied to most elements). Keep the header centered. */
+      #dispositionNote {
+        text-align: left;
+      }
+      #dispositionNote h3 {
+        text-align: center;
+      }
       .input-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
