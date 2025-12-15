@@ -90,6 +90,16 @@
       #dispositionNote h3 {
         text-align: center;
       }
+      /* Force-left align all generated disposition note lines and templates
+         to override the global centering. Keep the header centered. */
+      #dispositionNote [data-note-template],
+      #dispositionNote [data-note-for],
+      #dispositionNote .disposition-details,
+      #dispositionNote p,
+      #dispositionNote > div,
+      #dispositionNote > span {
+        text-align: left !important;
+      }
       .input-row {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -1906,7 +1916,16 @@
                   return parts.join(', ');
                 }
                 var el = document.getElementById(token);
-                if (el) return String(el.value || '').trim();
+                if (el) {
+                  var v = String(el.value || '').trim();
+                  if (el.type === 'date') {
+                    var m = v.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (m) return m[2] + '/' + m[3] + '/' + m[1];
+                    var d = new Date(v);
+                    if (!isNaN(d)) return String(d.getMonth() + 1).padStart(2, '0') + '/' + String(d.getDate()).padStart(2, '0') + '/' + d.getFullYear();
+                  }
+                  return v;
+                }
                 var els = document.getElementsByName(token);
                 if (els && els.length > 0) {
                   if (els[0].type === 'radio' || els[0].type === 'checkbox') {
@@ -1914,7 +1933,14 @@
                     for (var elementIndex = 0; elementIndex < els.length; elementIndex++) { var elementEl = els[elementIndex]; if (elementEl.checked) parts.push(elementEl.value); }
                     return parts.join(', ');
                   }
-                  return String(els[0].value || '').trim();
+                  var v2 = String(els[0].value || '').trim();
+                  if (els[0].type === 'date') {
+                    var m2 = v2.match(/^(\d{4})-(\d{2})-(\d{2})/);
+                    if (m2) return m2[2] + '/' + m2[3] + '/' + m2[1];
+                    var d2 = new Date(v2);
+                    if (!isNaN(d2)) return String(d2.getMonth() + 1).padStart(2, '0') + '/' + String(d2.getDate()).padStart(2, '0') + '/' + d2.getFullYear();
+                  }
+                  return v2;
                 }
                 return '';
               }
