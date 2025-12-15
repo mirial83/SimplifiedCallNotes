@@ -327,7 +327,7 @@
           <label><input type="checkbox" id="GADentry" name="reasonCalled" value="GAD" data-unrequire-groups="spouseAsk" data-show-note="noteGADentry" onchange="handleInputChange(event)">GAD Entry</label>
           <label><input type="checkbox" id="GADquestion" name="reasonCalled" value="GAD Question" data-show-note="noteGADquestion" onchange="handleInputChange(event)">GAD Question</label>
           <label><input type="checkbox" id="groupMembership" name="reasonCalled" value="Group Membership" data-show-groups="groupContactInformation" data-require-groups="groupContactInformation" data-show-note="noteGroupMembershipQuestions" onchange="handleInputChange(event)">Group Membership</label>
-          <label><input type="checkbox" id="reciprocity" name="reasonCalled" value="Gun Laws and Reciprocity" data-show-groups="reciprocityInfo" data-require-groups="reciprocityInfo" data-show-note="noteReciprocityQuestions" onchange="handleInputChange(event)">Gun Laws and Reciprocity</label>
+          <label><input type="checkbox" id="reciprocity" name="reasonCalled" value="Gun Laws and Reciprocity" data-show-groups="reciprocityInformation" data-require-groups="reciprocityInformation" data-show-note="noteReciprocityQuestions" onchange="handleInputChange(event)">Gun Laws and Reciprocity</label>
           <label><input type="checkbox" id="training" name="reasonCalled" value="In-person Training" data-show-groups="trainingInfo" data-require-groups="trainingInfo" data-show-note="noteTrainingClass" onchange="handleInputChange(event)">In-person Training</label>
           <label><input type="checkbox" id="instructorInfo" name="reasonCalled" value="Instructor Questions" data-show-groups="instructor" data-require-groups="instructor" data-show-note="noteInstructorQuestions" onchange="handleInputChange(event)">Instructor Questions</label>
           <label><input type="checkbox" id="info" name="reasonCalled" value="Membership Information" data-show-groups="membershipInformation" data-require-groups="membershipInformation" data-show-note="noteBenefitsReviewed" onchange="handleInputChange(event)">Membership Information</label>
@@ -1002,7 +1002,7 @@
       <label><input type="checkbox" id="event" name="classEvent" value="Event Questions" data-show-groups="eventInfo" data-require-groups="eventInfo" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">Event Questions</label>
       </div>
       </fieldset>
-      <fieldset class="eventInfo" data-group-for="eventName, eventAction" data-group-value="Event Information"  onchange="handleInputChange(event)" hidden>
+      <fieldset id="eventInfo" data-group-for="eventName, eventAction" data-group-value="Event Information"  onchange="handleInputChange(event)" hidden>
       <h3>Event Information</h3>
       <div class="text-input-container">
       <input type="text" id="eventName" name="eventName" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">
