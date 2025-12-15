@@ -1002,7 +1002,7 @@
       <label><input type="checkbox" id="event" name="classEvent" value="Event Questions" data-show-groups="eventInfo" data-require-groups="eventInfo" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">Event Questions</label>
       </div>
       </fieldset>
-      <fieldset class="eventInfo" data-group-for="eventName, eventAction" data-group-value="Event Information" hidden>
+      <fieldset class="eventInfo" data-group-for="eventName, eventAction" data-group-value="Event Information"  onchange="handleInputChange(event)" hidden>
       <h3>Event Information</h3>
       <div class="text-input-container">
       <input type="text" id="eventName" name="eventName" data-show-note="noteEventQuestions" onchange="handleInputChange(event)">
