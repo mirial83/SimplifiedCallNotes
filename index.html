@@ -1945,7 +1945,7 @@
                 return '';
               }
               // replace ${token} and {token}
-              var replacedText = noteTemplate.replace(/\$\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
+              var replacedText = noteTemplate.replace(/\$\{([^}]+)\}/g, function(_, t) { return '$' + resolveToken(t); });
               replacedText = replacedText.replace(/\{([^}]+)\}/g, function(_, t) { return resolveToken(t); });
               document.getElementById(noteId).textContent = replacedText;
             }
