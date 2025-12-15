@@ -385,6 +385,7 @@
           <label><input type="checkbox" name="cancelationReason" id="spouseOnly" value="Spouse Only" data-show-groups="spouseInfo"data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse Only</label>
           <label><input type="checkbox" name="cancelationReason" id="spouseTold" value="Spouse told them to" data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse told them to</label>
           <label><input type="checkbox" name="cancelationReason" id="temporaryMedical" value="Temporary Medical Condition" data-show-note="noteCancelation" onchange="handleInputChange(event)">Temporary Medical Condition</label>
+          <label><input type="checkbox" name="cancelationReason" id="stateRegulatedCancelation" value="Moving to State Regulated State" data-show-groups="stateRegulated" data-require-groups="stateRegulated" data-show-note="noteCancelation, noteStateRegulated" onchange="handleInputChange(event)">Moving to State Regulated State</label>
         </div>
       </fieldset>
       <fieldset id="groupCompetitor" data-group-for="competitors" data-group-value="Competitors" hidden>
@@ -1455,7 +1456,6 @@
         <div id="noteSpouseInfo" hidden data-note-template="Spouse: {fullNameSpouse} - {memberIDSpouse}"></div>
         <div id="noteLead" hidden data-note-template="Lead"></div>
         <div id="noteOtherReasonCalled" hidden data-note-template="{otherReasonCalled}"></div>
-        <div id="noteStateRegulated" hidden data-note-template="State Regulated State: {stateRegulatedState}"></div>
         <div id="notePurchases" hidden data-note-template="{list:purchases}"></div>
         <div id="noteNewMembership" hidden data-note-template="Started New {newMemberLevel} {newMemberRatePlan} - {newMemberPaymentPlan} {newMemberDiscounted} Membership"></div>
         <div id="noteNewMembershipBackground" hidden data-note-template="with {newMemberBackground} Background"></div>
@@ -1483,6 +1483,7 @@
         <div id="noteCancelation" hidden data-note-template="Cancelation for {list:cancelationReason}"></div>
         <div id="noteCompetitor" hidden data-note-template="Competitor: {list:competitors}"></div>
         <div id="noteOtherCompetitor" hidden data-note-template="Competitor: {otherCompetitorText}"></div>
+        <div id="noteStateRegulated" hidden data-note-template="State Regulated State: {list:stateRegulatedState}"></div>
         <div id="noteSaved" hidden data-note-template="SAVE: {list:reasonSave}"></div>
         <div id="noteOtherSave" hidden data-note-template="Other Save Reason: {otherSaveText}"></div>
         <div id="noteCanEffective" hidden data-note-template="Effective Date: {canEffectiveDate}"></div>
