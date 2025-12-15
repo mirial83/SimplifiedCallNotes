@@ -785,7 +785,7 @@
       </fieldset>
       <fieldset id="discount" data-group-for="discountAdded" data-group-value="Discount Applied" hidden>
       <h3>Was a Discount Applied?</h3>
-      <label><input type="checkbox" id="discountAdded" name="discountAdded" value="Discount Applied">Yes</label>
+      <label><input type="checkbox" id="discountAdded" name="discountAdded" value="Discount Applied" data-show-note="noteDiscountApplied" onchange="handleInputChange(event)">Yes</label>
       </fieldset>
       <!-- Payment/Refund -->
       <fieldset id="groupPaymentRefund" class="two-columns" data-group-for="paymentDue, paymentProcessed, refund" data-group-value="Payment/Refund Selectors" hidden>
@@ -1510,7 +1510,7 @@
         <div id="noteBackgroundUpdate" hidden data-note-template="Updated Background: {list:backgroundSelect}"></div>
         <div id="noteOtherMemberBackground" hidden data-note-template="Other Background: {primaryOtherBackground}"></div>
         <div id="noteOtherSpouseBackground" hidden data-note-template="Other Spouse Background: {spouseOtherBackground}"></div>
-        <div id="noteDiscountApplied" hidden data-note-template="{discountAdded}"></div>
+        <div id="noteDiscountApplied" hidden data-note-template="{list:discountAdded}"></div>
         <div id="noteEmailUpdate" hidden data-note-template="Updated {list:spouseMemberEmail} Email"></div>
         <div id="noteEmergencyUpdate" hidden data-note-template="Updated {list:spouseMemberEmergency} Emergency Contact"></div>
         <div id="noteNameUpdate" hidden data-note-template="Updated {list:spouseMemberName} Name"></div>
