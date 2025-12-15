@@ -382,7 +382,7 @@
           <label><input type="checkbox" name="cancelationReason" id="permanentMedical" value="Permanent Medical Condition" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteCanEffective" onchange="handleInputChange(event)">Permanent Medical Condition</label>
           <label><input type="checkbox" id="priceIncrease" name="cancelationReason" value="Price Increase" data-show-note="noteCancelation" onchange="handleInputChange(event)">Price Increase</label>
           <label><input type="checkbox" name="cancelationReason" id="spouseDeceased" value="Spouse (Deceased)" data-show-groups="canEffective" data-require-groups="canEffective" data-hide-groups="groupSave, spouseAsk, raf" data-unrequire-groups="groupSave, spouseAsk, raf" data-show-note="noteCancelation, noteSpouseInfonoteCanEffective" onchange="handleInputChange(event)">Spouse (Deceased)</label>
-          <label><input type="checkbox" name="cancelationReason" id="spouseOnly" value="Spouse Only" data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse Only</label>
+          <label><input type="checkbox" name="cancelationReason" id="spouseOnly" value="Spouse Only" data-show-groups="spouseInfo"data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse Only</label>
           <label><input type="checkbox" name="cancelationReason" id="spouseTold" value="Spouse told them to" data-show-note="noteCancelation" onchange="handleInputChange(event)">Spouse told them to</label>
           <label><input type="checkbox" name="cancelationReason" id="temporaryMedical" value="Temporary Medical Condition" data-show-note="noteCancelation" onchange="handleInputChange(event)">Temporary Medical Condition</label>
         </div>
@@ -1480,7 +1480,7 @@
         <div id="noteComplaint" hidden data-note-template="{complaint}"></div>
         <div id="noteGADentry" hidden data-note-template="{GADentry}"></div>
         <div id="noteGADquestion" hidden data-note-template="{GADquestion}"></div>
-        <div id="noteCancelation" hidden data-note-template="Cancelation due to {list:cancelationReason}"></div>
+        <div id="noteCancelation" hidden data-note-template="Cancelation for {list:cancelationReason}"></div>
         <div id="noteCompetitor" hidden data-note-template="Competitor: {list:competitors}"></div>
         <div id="noteOtherCompetitor" hidden data-note-template="Competitor: {otherCompetitorText}"></div>
         <div id="noteSaved" hidden data-note-template="SAVE: {list:reasonSave}"></div>
